@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Werte der Assemblyattribute überprüfen
 
 <Assembly: AssemblyTitle("MahjongGK")>
-<Assembly: AssemblyDescription("")>
+<Assembly: AssemblyDescription("Mahjong Solitär in Entwicklung")>
 <Assembly: AssemblyCompany("")>
 <Assembly: AssemblyProduct("MahjongGK")>
 <Assembly: AssemblyCopyright("Copyright ©  2025")>

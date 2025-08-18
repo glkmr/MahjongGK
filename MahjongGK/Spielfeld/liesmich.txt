@@ -1,0 +1,205 @@
+﻿Hier sind Module angesiedelt, die programmweit von überall heraus
+aufrufbar sind.
+
+INI: Eine Sammlung von Properties, deren Werte als INI-Datei
+gespeichert werden, einer Textdatei, die auch manuell editierbar ist.
+Könnte man auch anders lösen, benutze ich aber seit vielen Jahren.
+
+
+Hinweis für C#-Programmierer:
+
+In VB.NET ist ein Module kein Relikt aus VB6, sondern ein vollwertiger .NET-Typ.
+Technisch entspricht ein Module in VB.NET einer static class in C#:
+Alle Member sind automatisch Shared (entspricht static in C#)
+Ein Module kann nicht instanziiert werden.
+Es dient typischerweise als Container für Hilfsfunktionen, Konstanten oder globale Variablen
+Unterschied zu einer normalen Klasse: Kein Shared-Schlüsselwort nötig, da es implizit gilt
+Beispiel:
+
+
+VB.NET:
+Public Module Helfer
+    Public Function Quadrat(x As Double) As Double
+        Return x * x
+    End Function
+End Module
+
+C#-Äquivalent:
+public static class Helfer
+{
+    public static double Quadrat(double x) => x * x;
+}
+
+'#####################################################################################
+
+Vorbemerkung:
+Die Dateien im Verzeichnis "Spielfeld" sind alles Module. Sie sind gekapselt im NameSpace
+Spielfeld. Innerhalb des NameSpace kann ich mich frei bewegen und von außen komme
+ich nur über den voll qualifizierten Pfad ran, weil ich bewußt kein "Import Spielfeld"
+verwende. So sind versehentliche Seiteneffekte minimiert.
+
+
+MahjongGK ist ein Mahjong in der Solitärvariante.
+Es wird mit maximal 42 Steinen gespielt zuzätzlich einer Dymmy-Grafik als Fehleranzeiger.
+Die Enumeration aller Steine lautet:
+
+Public Enum Stein
+    '        _x ist die Gruppenzugehörigkeit
+    '        siehe FeldbeschreiberHelper.GetGruppe
+    '        undFeldbeschreiberHelper.GruppeLookup 
+    Dummy '  _0
+    Punkt1 ' _1
+    Punkt2 ' _2
+    Punkt3 ' _3
+    Punkt4 ' _4
+    Punkt5 ' _5
+    Punkt6 ' _6
+    Punkt7 ' _7
+    Punkt8 ' _8
+    Punkt9 ' _9
+    Bambus1 ' _10
+    Bambus2 ' _11
+    Bambus3 ' _12
+    Bambus4 ' _13
+    Bambus5 ' _14
+    Bambus6 ' _15
+    Bambus7 ' _16
+    Bambus8 ' _17
+    Bambus9 ' _18
+    Symbol1 ' _19
+    Symbol2 ' _20
+    Symbol3 ' _21
+    Symbol4 ' _22
+    Symbol5 ' _23
+    Symbol6 ' _24
+    Symbol7 ' _25
+    Symbol8 ' _26
+    Symbol9 ' _27
+    WindOst ' _28
+    WindSüd ' _28
+    WindWest ' _28
+    WindNord ' _28
+    DrachenRot ' _29
+    DrachenGrün ' _29
+    DrachenWeiß ' _29
+    BlütePflaume ' _30
+    BlüteOrchidee ' _30
+    BlüteChrisantheme ' _30
+    BlüteBambus ' _30
+    JahrFrühling ' _31
+    JahrSommer ' _31
+    JahrHerbst ' _31
+    JahrWinter ' _31
+End Enum
+
+
+Konzept und Aufbau des FeldBeschreibers in MahjongGK
+    
+Der Feldbeschreiber FB ist ein Integer-Wert, der den Zugriff zu allen benötigten 
+Informationen bietet, um ihn zu verwalten und anzuzeigen,
+wobei die Zusatzinformation der Lage des einzelnen Feldbeschreibers in einem
+3D-Array von Integer-Werten die genaue Position im Raum wiederspiegelt.
+
+Diesen Weg habe ich gewählt, da er eine sehr schnelle Verarbeitung gewährleistet,
+denn sowohl die Bildschirmausgabe, als auch die Auswertung der Ist-Situation
+ist zeitkritisch.
+
+Ich betrachte den FB-Integer-Wert nicht als eine einige Zahl, sondern als
+Ziffern-Array: Der größtmögliche Wert eines vorzeichenbehafteten Long
+ist 2147483647, das sind 10 Ziffern, davon 0
+Ich bezeichne die Ziffern von rechts nach links als: dig1, dig2, dig3 usw.
+
+
+Flags
+
+Dig5 und Dig6 verwende ich als Flagfeld, in dem 8 Flags untergebracht sind 
+
+Ein Stein kann den darunter liegenden Stein entweder vollständig verdecken oder
+um einen halben Stein versetzt sein. D.h. es gibt 4 Positionen, die ein Stein gegenüber
+einem anderen Stein in der Ebene drunter oder drüber haben kann.
+Fall 1: er verdeckt ihn vollständig
+Fall 2: er ist um einen halben Stein nach rechts verschoben. (Richtung steigender X-Werte)
+       (nach links verschoben heißt: vom Nachbarstein links daneben nach rechts verschoben!)
+Fall 3: er ist um einen halben Stein nach unten verschoben. (Richtung steigender Y-Werte)
+       (nach oben verschoben heißt: vom Nachbarstein drüber nach unten verschoben.)
+Fall 4: nach rechts unten um einen halben Stein verschoben.
+       (nach links oben heißt: vom Stein diagonal nach links oben nach rechts unten verschoben.)
+
+Das bedeutet, ein Stein belegt 4 Felder. Aber nur im rechtem unteren Feld wird
+Information gespeichert. Die anderen 3 Felder müssen nur die Informtion haben:
+erstens "Belegt", also Feldinhalt <> 0 und zweitens, einen Link zum Feld rechts unten,
+ich nenne es zentrales Feld.
+
+Der Link zum zentralem Feld ist ein XOffset, der zu dem X-Wert addiert werden muss,
+und einem YOffset, der zum Y-Wert addiert werden muss.
+
+Also: Dim infoFB as Long = _arrFB(x + xOffset, y + yOffset, z)
+
+xOffset und yOffset sind 0 oder 1.
+
+Ob die Offset 0 oder 1 sind, ist in dem Flagfeld gespeichert.
+
+Der Trick gibt die Möglichkeit durch alle Felder zu iterieren und immer die Werte
+des infoFB zu erhalten, egal in welchem Feld der infoFB steht.
+Es muss nur abgefragt werden, ob das Feld den Wert 0 hat, denn dann ist es ein 
+unbelegtes Feld, über das natürlich keine weiteren Informationen benötigt werden.
+
+
+Der compareFBMarker
+
+Da jeder Stein 4 Felder belegt, wird bei einer Runde
+
+For z = 0 to zMax
+   For x = 1 to xMax (Warum x und y = 1 kommt gleich)
+       For y = 1 to yMax
+            Dim infoFB as Integer = _arrFB(x + xOffset, y + yOffset, z)
+           'Tue was ...
+       Next
+   Next
+Next
+
+Jeder Stein 4 mal aufgerufen, davon ist aber nur das erste mal sinnhaftig.
+
+Um die weiteren Male zu erkennen, ein weiterer Trick:
+Flag#3 (Das ToggleFlag) wird mit den Flag#3 einer außerhalb der Schleife befindlichen
+Integer verglichen, ich nenne sie compareToggleFlag.
+
+Sind diese gleich, wird dig7 in der aktuellen _arrFB(x + dig5 - 1, y + dig6 - 1, z)
+um eins erhöht und dann "Tu was ..." ausgeführt.
+Beim nächsten Vorkommen der gleichen infoFB sind die beiden ToggleFlag ungleich,
+Tu was ... wird dann übersprungen.
+Der große Vorteil dieser Lösung: Eine Rückstellung ist nicht nötig. Es reicht die
+außerhalb der Schleife befindliche compareFBMarker zu togglen und das Spiel
+geht von neuem Los.
+
+
+Der Wert des Restes der infoFB nach dem Flagfeld ist der Index auf den 
+    arrSteinIfo() As SteinInfo
+in dem sich alle weiteren Daten des Steines an den Koordinaten des infoFB befinden.
+
+
+Besonderheiten von LBound xMin, yMin und UBound xMax und yMax
+
+Die einzelnen FeldBeschreibers sind in einem 3D-Array gespeichert,
+wobei die Lage im Raum durch die x, y und z-Koordinaten bestimmt wird.
+Die x-Koordinate ist die horizontale Lage, die y-Koordinate die vertikale Lage
+und die z-Koordinate die Ebene, in der sich der Stein befindet.
+
+Einige der Funktionen prüfen, ob das Nachbarfeld belegt ist, oder nicht.
+An den Feldrändern gibt es aber keine Nachbarfelder, die geprüft werden können,
+deshalb entstehen Sonderfälle um Abfragen auf unzulässige Indizes zu vermeiden.
+
+Deshalb ist das 3D-Array in der X- und Y-Richtung ringsum um eine Spalte/Zeile
+verlängert und die Schleifen laufen von 1 bis xMax und 1 bis yMax, wobei
+xMax = _arrFB.GetUpperBound(0) -1 und yMax = _arrFB.GetUpperBound(1) -1 ist.
+Das bedeutet, daß jederzeit auf die Felder (x - 1), (x + 1), (y - 1) und (y + 1)
+zugegriffen werden kann, ohne das der Index außerhalb des gültigen Bereichs liegt.
+Da diese Felder alle mit = 0 initialisiert sind, was bedeutet "Feld nicht belegt",
+kommt automatisch die richtige Antwort ohne irgendwelche If-Abfragen.
+
+Die z-Koordinate ist die Ebene, in der sich der Stein befindet.
+Die Ebene 0 ist die unterste Ebene, Ebene 1 die darüber liegende Ebene usw.
+Die z-Koordinate wird in der von 0 bis zMax gezählt, wobei es keine zusätzlichen
+Ebenen gibt, die nicht belegt sind. zMax ist also _arrFB.GetUpperBound(2).
+
+####################################################################################

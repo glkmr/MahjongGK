@@ -1,0 +1,111 @@
+﻿
+
+ChatGPT - Meine Erfahrung - von Götz Kircher (mahjonggk@t-online.de)
+
+Die Antworten von ChatGPT sind so intelligent wie die Fragestellung
+
+In einem Interview sagte ein Programmierer:
+	„ChatGPT (Version 4, Sommer 2025) beschleunigt die Programmentwicklung – um den Faktor 10!“ [¹]
+Das hat mich neugierig gemacht.
+
+Ich bin Rentner und heute Hobbyprogrammierer.
+
+Gelernt habe ich das Programmieren zu meiner Studienzeit zum Dipl.-Ing. Holztechnik,
+Anfang der 1980er Jahre, als die allerersten kommerziell brauchbaren PCs aufkamen.
+Meine erste Fakturierung (mit 1500 Artikeln und Adressen von 3000 Kunden, alles auf
+zweimal 1-MB-Diskette, 64 KB Programmspeicher) habe ich 1983 geschrieben.
+
+Für mich ist Programmieren Konstruieren in seiner reinsten Form. Ich brauche keine
+aufwendige Werkstatt mit Dutzenden Maschinen und Hunderten Werkzeugen – ein Computer
+mit Tastatur und Bildschirm reicht völlig aus.
+
+Um ChatGPT genauer auszuprobieren, habe ich als Fingerübung einen MP3-Player programmiert.
+Ob es wirklich genau der Faktor 10 ist, um den das Coden schneller geht, weiß ich nicht
+– aber es geht deutlich schneller [²].
+
+Und: Mein Programmierstil hat sich spürbar verbessert.
+Zeitlebens Autodidakt, hatte ich bisher nie jemanden, der mir über die Schulter schaute
+und mich korrigierte [³].
+
+Nach dem MP3-Player habe ich beschlossen, ein größeres Projekt anzugehen:
+ein Mahjong-Solitär-Spiel. Programmiertechnisch anspruchsvoll und für mich ein Riesenspaß.
+Vom Umfang her ist es für einen einzelnen Programmierer noch machbar – früher hätte man
+dafür etwa ein Jahr Vollzeitarbeit gebraucht. Ich bin mir sicher, mit ChatGPT wird es 
+deutlich schneller gehen [⁴].
+
+Die Arbeit mit ChatGPT erinnert mich an Seminare während meiner Studienzeit, bei denen
+der Seminarleiter einem immer wieder über die Schulter schaut, hilft und jederzeit
+Auskunft gibt. Die Fachbuchbranche wird sich anschnallen müssen – ChatGPT ist, zumindest 
+im Bereich des Programmierens, heute schon besser [⁵].
+
+Wenn ich jemandem sage: „Ich habe von ChatGPT …“, kommt fast immer sofort:
+	„Aber! – ChatGPT macht Fehler! …“
+Das ist richtig.
+
+„Wer eine dumme Frage stellt, bekommt eine falsche Antwort“ – so lautet meine Erfahrung.
+
+Die Qualität der Eingabe (inklusive Kontext und Präzision) bestimmt maßgeblich die 
+Qualität der Antwort[⁶].
+
+Man muss die Funktionsweise der KI begreifen:
+Um als Mensch eine qualifizierte Antwort zu geben, braucht es Wissen über den Fragesteller
+und oft auch über vorherige Fragen. Der Mensch greift dabei auf sein Gedächtnis zurück
+– oder fragt nach. Die KI fragt dagegen nur selten nach, sondern macht meist Annahmen, 
+was der Fragesteller gemeint haben könnte – und das führt schnell zu fehlerhaften oder 
+völlig falschen Antworten [⁷].
+
+Man muss der KI das notwendige Hintergrundwissen mitliefern.
+
+Fragestellung und Hintergrund müssen in sich schlüssig sein.
+
+Ein Beispiel:
+Ich hatte mich in einer gedanklichen Sackgasse verirrt, als ich eine Funktion haben wollte, 
+die bestimmte Daten speichern und wieder laden kann. Die Funktion, die die Daten erzeugt, 
+hatte ich vorher beschrieben, und ChatGPT hat sie erstellt. Diese Daten brauchte man aber 
+gar nicht speichern – sie ließen sich jederzeit zweifelsfrei und eindeutig neu erzeugen. 
+ChatGPT hat das nicht hinterfragt, sondern interpretiert, was ich gemeint haben könnte
+– und mir völligen Quatsch geliefert [⁸].
+
+Das zeigt auch: ChatGPT bezieht in seine Überlegungen ein, was vorher geschehen ist.
+Aber hier muss man aufpassen – und die Grenzen kennen. Das Gedächtnis ist nicht besonders
+lang [⁹]. Besonders deutlich wird das bei der Fehlersuche: ChatGPT schlägt eine Änderung vor. 
+Hilft die nicht, kommt der nächste Vorschlag, dann der nächste. Nach kurzer Zeit fängt es
+wieder von vorne an – die früheren Schritte sind „hinten rausgefallen“.
+Das bedeutet:
+
+Man muss Rückfragen sparsam und gezielt stellen, um innerhalb der Gedächtnisgrenzen 
+der KI zu bleiben [¹⁰].
+
+Die Selbsteinschätzung von ChatGPT lauted:
+„ChatGPT erfindet selten völlig neue Konzepte, kann aber vorhandene Ideen sehr schnell 
+konkretisieren und in umsetzbare Lösungen überführen.“
+
+Ich finde treffender: ChatGPT liefert keine Konzepte, hilft aber bei der Umsetzung von Konzepten.  
+
+
+Fußnoten
+Den fertigen Text habe ich ChatGPT vorgelegt mit der Frage: "Ist das richtig, was ich da schreibe?"
+Zurück kam der Vorschlag, den Text mit ChatGPT-Kommentaren in Fußnoten zu versehen.
+
+[¹] Der „Faktor 10“ ist eine persönliche Erfahrung des Interviewten. Realistisch schwankt der 
+    Geschwindigkeitsgewinn je nach Aufgabe, Vorkenntnissen und Einsatzweise der KI zwischen kaum
+	messbar und weit über 10×.
+[²] Geschwindigkeit kommt vor allem durch Wegfall von Recherchearbeit, schnelle Codebeispiele 
+	und sofortiges Testen zustande.
+[³] KI kann fehlendes Feedback teilweise ersetzen, indem sie alternative Lösungen, Optimierungen 
+	oder Stilverbesserungen vorschlägt.
+[⁴] Für komplexe, aber gut abgegrenzte Projekte ist eine Beschleunigung realistisch, solange der 
+	Nutzer den KI-Output versteht und kontrolliert.
+[⁵] ChatGPT liefert auf Abruf praxisnahen Code, während Fachbücher eher Grundlagen und fertige 
+	Beispiele bieten. Dafür sind Fachbücher meist zuverlässiger in der Richtigkeit.
+[⁶] Schlechte oder unklare Fragen führen fast immer zu schlechteren Antworten – das gilt für 
+	Menschen wie für KI.
+[⁷] KI-Modelle arbeiten probabilistisch: Sie „raten“ das wahrscheinlichste nächste Wort, basierend
+	auf den bisherigen Eingaben, ohne tiefes Verständnis.
+[⁸] ChatGPT prüft selten, ob eine Aufgabe überhaupt sinnvoll ist. Es versucht, das Verlangte 
+	technisch umzusetzen.
+[⁹] In einer Sitzung merkt sich ChatGPT nur eine begrenzte Menge an Text („Kontextfenster“). 
+	Bei langen Dialogen fallen ältere Informationen heraus.
+[¹⁰] Gezielt gestellte, in sich abgeschlossene Fragen sorgen dafür, dass wichtige Details nicht 
+	vergessen werden, bevor sie beantwortet werden.
+
