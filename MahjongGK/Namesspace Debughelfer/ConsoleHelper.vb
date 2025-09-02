@@ -34,10 +34,12 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports Microsoft.Win32.SafeHandles
 
-Namespace DebugHilfen
+Namespace DebugHelfer
+
     ''' <summary>
-    ''' Umleitung der Debug-Ausgabe in ein Konsolenfenster (gut, wenn man zwei Bildchirme hat,
-    ''' srollt aber nicht horizontal.)
+    ''' Umleitung der Debug-Ausgabe in ein Konsolenfenster 
+    ''' Nur brauchbar, wenn man zwei Bildschirme hat.
+    ''' Srollt nicht horizontal.
     ''' </summary>
     Module ConsoleHelper
 

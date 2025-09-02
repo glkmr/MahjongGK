@@ -1,4 +1,25 @@
-﻿
+﻿'
+' SPDX-License-Identifier: GPL-3.0-or-later
+'###########################################################################
+'#                                                                         #
+'#   Copyright © 2025–2026 Götz Kircher <mahjonggk@t-online.de>            #
+'#                                                                         #
+'#                     MahjongGK  -  Mahjong Solitär                       #
+'#                                                                         #
+'#   This program is free software: you can redistribute it and/or modify  #
+'#   it under the terms of the GNU General Public License as published by  #
+'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   at your option any later version.                                     #
+'#                                                                         #
+'#   This program is distributed in the hope that it will be useful,       #
+'#   but WITHOUT ANY WARRANTY; without even the implied warranty of        #
+'#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          #
+'#   GNU General Public License for more details.                          #
+'#   https://www.gnu.org/licenses/gpl-3.0.html                             #
+'#                                                                         #
+'###########################################################################
+'
+'
 Option Compare Text
 Option Explicit On
 Option Infer Off
@@ -7,15 +28,48 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
+
 Namespace Spielfeld
 
-    Public Module PaintLimiterModul
+    Public Module FrameSchedulerModul
 
-        Public PaintLimiter As New PaintLimiterClass()
+
+#Region "FrameScheduler"
+
+        Public FrameScheduler As New FrameSchedulerClass()
 
         Private CurrentControl As Control = Nothing
+
+        ' „Wecker“ (10–15ms ist gut),  = 1 ergibt einen etwas stabileren Takt von 15 ms,
+        ' hat aber Auswirkung auf alle Timer und kostet mehr Energie.
+        ' Werte über 30 verlangsamen die Geschwindigkeit, was zu einer Vergröberung
+        ' der Animation führt. (Die Gesamtlänge der Animation bleibt, die Schritte
+        ' werde größer, bis es irgendwann kippt und die Anumationsdauer sich verlängert.) 
         Private WithEvents RenderTimer As New Timer With {.Interval = 1}
 
+        Private Sub RenderTimer_Tick(sender As Object, e As EventArgs) Handles RenderTimer.Tick
+            If CurrentControl Is Nothing OrElse CurrentControl.IsDisposed Then Exit Sub
+            If Not CurrentControl.Visible OrElse CurrentControl.Width = 0 OrElse CurrentControl.Height = 0 Then Exit Sub
+
+            ' Der eigentliche Takt kommt hier von der Stopwatch im Scheduler:
+            If FrameScheduler.TryNextFrame() Then
+                CurrentControl.Invalidate()
+#If DEBUGFRAME Then
+                Debug.Print("TryNextFrame = True")
+            Else
+                Debug.Print("TryNextFrame = False")
+#End If
+            End If
+        End Sub
+
+        Public Sub PaintSpielfeld_GiveGeneralPermission(ctrl As Control, visible As frmMain.VisibleUserControl)
+            CurrentControl = ctrl
+            SpielfeldDaten.VisibleUserControl = visible
+            FrameScheduler.Reset()
+            RenderTimer.Start()
+        End Sub
+
+#End Region
 
         Private _PaintSpielfeld_AktPermission As Boolean
         ''' <summary>
@@ -37,26 +91,13 @@ Namespace Spielfeld
         Public Property PaintSpielfeld_GivePermissionIfPossible As Boolean = False
         '
         ''' <summary>
-        ''' Wird das Flag True gestellt, wird vor em nächsten Paint das Spielfeld
+        ''' Wird das Flag True gestellt, wird vor dem nächsten Paint das Spielfeld
         ''' aktualisiert. UpdateSpielfeld wird dann mit 
         ''' Das Flag ist selbstrückstellend.
         ''' </summary>
         ''' <returns></returns>
         Public Property PaintSpielfeld_UpdteSpielfeld As Boolean = False
 
-        ''' <summary>
-        ''' Wird aus frmMain heraus aufgerufen mit der Angabe der Zeichenfläche.
-        ''' Startet den Ausgabeprozess.
-        ''' </summary>
-        ''' <param name="currentControl"></param>
-        Public Sub PaintSpielfeld_GiveGeneralPermission(currentControl As Control, visibleUserControl As frmMain.VisibleUserControl)
-
-            ' Neues Control registrieren (altes wird automatisch abgemeldet)
-            PaintLimiterModul.CurrentControl = currentControl
-            RenderTimer.Start()
-            PaintSpielfeld_GivePermissionIfPossible = True
-            SpielfeldDaten.VisibleUserControl = visibleUserControl
-        End Sub
         '
         ''' <summary>
         ''' Wird aus frmMain heraus aufgerufen. Stoppt den Ausgabeprozess.
@@ -69,7 +110,7 @@ Namespace Spielfeld
             VisibleUserControl = frmMain.VisibleUserControl.None
         End Sub
 
-        Private _lastRectOutput As Rectangle = New Rectangle
+        Private _lastRectOutput As New Rectangle
         ''' <summary>
         ''' Dieses Sub wird vom PaintEvent der Zeichenfläche (UCtlSpielfeld und UCtlEdtor) getaktet
         ''' aufgerufen. Es ist ein Verteiler, der entweder die Initialisierung des Spielfeldes,
@@ -80,6 +121,11 @@ Namespace Spielfeld
         ''' <param name="rectOutput"></param>
         ''' <param name="timeDifferenzFaktor"></param>
         Public Sub PaintSpielfeld_Paint(visibleUserControl As frmMain.VisibleUserControl, e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+
+            If visibleUserControl = frmMain.VisibleUserControl.None Then
+                'Abfrage dient nur zur Unterdückung der Warnung "Nicht verwendeter Parameter..."
+                Throw New Exception("Keine Zeichenfläche vorhanden")
+            End If
 
             If PaintSpielfeld_AktPermission Then
 
@@ -172,12 +218,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public Property PaintSpielfeld_ShowErrorMessage As Boolean
 
-        <DebuggerStepThrough>
-        Private Sub RenderTimer_Tick(sender As Object, e As EventArgs) Handles RenderTimer.Tick
-            If CurrentControl IsNot Nothing AndAlso Not CurrentControl.IsDisposed Then
-                CurrentControl.Invalidate()
-            End If
-        End Sub
+
 
     End Module
 

@@ -36,6 +36,8 @@ Imports System.Xml.Serialization
 
 Namespace Spielfeld
 
+#Const INSERT_STEIN_INDEX_ENUM = True
+
     Public Class ImagesBase64XML
 
         ''' <summary>
@@ -44,10 +46,10 @@ Namespace Spielfeld
         Public ImagesB64(42) As String
 
         <XmlIgnore>
-        Private _OriginalBitmaps(42) As Bitmap
+        Private ReadOnly _OriginalBitmaps(42) As Bitmap
 
         <XmlIgnore>
-        Private _ScaledBitmaps(42) As Bitmap
+        Private ReadOnly _ScaledBitmaps(42) As Bitmap
 
         <XmlIgnore>
         Private _ScaledWidth As Integer = -1
@@ -93,12 +95,12 @@ Namespace Spielfeld
                         Using gfx As Graphics = Graphics.FromImage(_ScaledBitmaps(idxStein))
                             gfx.Clear(Color.FromArgb(128, 128, 128, 128))
 
-                            ' Durchmesser = 80% der kleineren Kantenlänge
-                            Dim d As Single = 0.8F * Math.Min(width, height)
+                            ' Durchmesser = 860% der kleineren Kantenlänge
+                            Dim d As Single = 0.6F * Math.Min(width, height)
 
                             ' Mittelpunkt der Grafik
-                            Dim centerX As Single = width / 2.0F
-                            Dim centerY As Single = height / 2.0F
+                            Dim centerX As Single = width / 2.0F * 0.85F
+                            Dim centerY As Single = height / 2.0F * 0.85F
 
                             ' Linke obere Ecke des umschreibenden Rechtecks berechnen
                             Dim x As Single = centerX - d / 2.0F
@@ -118,12 +120,13 @@ Namespace Spielfeld
                                     gfx.DrawEllipse(pen, x, y, d, d)
                                 End Using
 
-                            Else 'idxSteinStatus = SteinStatus.Reserve2 Then
+                            ElseIf idxSteinStatus = SteinStatus.Reserve2 Then
                                 Using pen As New Pen(Color.Blue, 3)
                                     gfx.DrawEllipse(pen, x, y, d, d)
                                 End Using
                             End If
 
+#If INSERT_STEIN_INDEX_ENUM Then
                             If IfRunningInIDE_InsertStoneIndex Then
 
                                 ' String in rechte obere Ecke zeichnen
@@ -141,6 +144,8 @@ Namespace Spielfeld
                                     End Using
                                 End Using
                             End If
+#End If
+
                         End Using
                     Next
 
@@ -153,11 +158,28 @@ Namespace Spielfeld
                 End If
             End If
 
+
+
             For idxStein As Integer = 0 To 42
+
                 Dim img As Bitmap = GetOriginalBitmap(idxStein)
                 If img IsNot Nothing Then
                     _ScaledBitmaps(idxStein)?.Dispose()
                     _ScaledBitmaps(idxStein) = ResizeBitmap(img, width, height, qualität)
+
+                    If idxSteinStatus = SteinStatus.WerkstückEinfügeFehler Then
+                        SteinOverlays.InsertGrafik(_ScaledBitmaps(idxStein), "Error")
+                        ' SteinOverlays.InsertOverlayGrafik(_ScaledBitmaps(idxStein), OverlayStyle.Warnung)
+                    ElseIf idxSteinStatus = SteinStatus.WerkstückZufallsgrafik Then
+                        SteinOverlays.InsertGrafik(_ScaledBitmaps(idxStein), "NoGo")
+                        'SteinOverlays.InsertOverlayGrafik(_ScaledBitmaps(idxStein), OverlayStyle.Blockiert)
+                    End If
+
+                    'If idxStein = 0 Then
+                    '    InsertErrorGrafik(_ScaledBitmaps(idxStein))
+                    'End If
+
+#If INSERT_STEIN_INDEX_ENUM Then
 
                     If IfRunningInIDE_InsertStoneIndex Then
                         Using gfx As Graphics = Graphics.FromImage(_ScaledBitmaps(idxStein))
@@ -177,8 +199,11 @@ Namespace Spielfeld
                             End Using
                         End Using
                     End If
+#End If
+
                 End If
             Next
+
 
             _ScaledWidth = width
             _ScaledHeight = height
@@ -261,6 +286,9 @@ Namespace Spielfeld
                 Return Nothing
             End Try
         End Function
+
+
+
 
     End Class
 

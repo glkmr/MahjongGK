@@ -20,18 +20,15 @@
 '###########################################################################
 '
 '
-
 Option Compare Text
 Option Explicit On
 Option Infer Off
 Option Strict On
-Imports System.Xml
-
-
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
+Imports System.Xml
 '
 ''' <summary>
 ''' Hier sind Helfer-Funktionen angesiedelt, die programmweit

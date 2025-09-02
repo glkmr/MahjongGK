@@ -42,6 +42,7 @@
     </NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
+    <DefineConstants>DEBUGFRAME = False</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -96,21 +97,33 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Debughelfer\DebugHelfer.vb" />
-    <Compile Include="Shared\INI.vb" />
-    <Compile Include="Shared\IniManager.vb" />
-    <Compile Include="Spielfeld\PaintLimiterModul.vb" />
-    <Compile Include="Spielfeld\PaintLimiterClass.vb" />
-    <Compile Include="Spielfeld\SpielfeldKonstanten.vb" />
-    <Compile Include="SpielfeldKlassen\SteinInfo.vb" />
-    <Compile Include="Container\Triple.vb" />
-    <Compile Include="Container\TripleR.vb" />
-    <Compile Include="Debughelfer\DebugAusgabeArray3D.vb" />
-    <Compile Include="Debughelfer\ConsoleHelper.vb" />
-    <Compile Include="Debughelfer\DebugTxtOutputForm.vb">
+    <Compile Include="Bitmaps\SteinOverlays.vb" />
+    <Compile Include="Hilfsmodule\GdiHelfer.vb" />
+    <Compile Include="Namesspace Debughelfer\DebugBitmaps.vb" />
+    <Compile Include="Shared\DebugStep.vb" />
+    <Compile Include="Formulare\MessageBoxFormatiert.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Debughelfer\DebugRtfOutputForm.vb">
+    <Compile Include="SpielfeldKlassen\Statistik.vb" />
+    <Compile Include="INI\INI.vb" />
+    <Compile Include="INI\IniManager.vb" />
+    <Compile Include="SpielfeldKlassen\SpielfeldInfoValues.vb" />
+    <Compile Include="SpielfeldKlassen\SpielfeldSteineAustauscher.vb" />
+    <Compile Include="SpielfeldKlassen\SpielsteinGeneratorValues.vb" />
+    <Compile Include="Werken %28Bausteine erzeugen%29\Werkbank.vb" />
+    <Compile Include="Werken %28Bausteine erzeugen%29\Werkstück.vb" />
+    <Compile Include="Namespace Spielfeld\FrameSchedulerModul.vb" />
+    <Compile Include="Namespace Spielfeld\FrameSchedulerClass.vb" />
+    <Compile Include="Werken %28Bausteine erzeugen%29\Werkstücke.vb" />
+    <Compile Include="Shared\Konstanten.vb" />
+    <Compile Include="SpielfeldKlassen\SteinInfo.vb" />
+    <Compile Include="Container\Triple.vb" />
+    <Compile Include="Namesspace Debughelfer\DebugAusgabeArray3D.vb" />
+    <Compile Include="Namesspace Debughelfer\ConsoleHelper.vb" />
+    <Compile Include="Namesspace Debughelfer\DebugTxtOutputForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Namesspace Debughelfer\DebugRtfOutputForm.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmMain Sub Main\frmMain.Designer.vb">
@@ -139,17 +152,18 @@
     </Compile>
     <Compile Include="Persistierung\PersistAttribute.vb" />
     <Compile Include="Persistierung\PersistHelper.vb" />
-    <Compile Include="Debughelfer\DebugHelferNamespaceSpielfeld.vb" />
-    <Compile Include="Spielfeld\DigitHelper.vb" />
-    <Compile Include="Spielfeld\SpielfeldAnimator.vb" />
-    <Compile Include="Spielfeld\SpielfeldEnum.vb" />
-    <Compile Include="Spielfeld\SpielfeldHelper.vb" />
+    <Compile Include="Namespace Spielfeld\DigitHelper.vb" />
+    <Compile Include="Namespace Spielfeld\SpielfeldAnimator.vb" />
+    <Compile Include="Shared\Enumeratioen.vb" />
+    <Compile Include="Namespace Spielfeld\SpielfeldHelper.vb" />
     <Compile Include="Shared\Helper.vb" />
-    <Compile Include="Spielfeld\SpielfeldRenderer.vb" />
-    <Compile Include="Spielfeld\SpielfeldDaten.vb" />
-    <Compile Include="Spielfeld\SpielfeldManager.vb" />
-    <Compile Include="Spielfeld\Testdaten.vb" />
+    <Compile Include="Namespace Spielfeld\SpielfeldRenderer.vb" />
+    <Compile Include="Namespace Spielfeld\SpielfeldDaten.vb" />
+    <Compile Include="Namespace Spielfeld\SpielfeldManager.vb" />
+    <Compile Include="SpielfeldKlassen\SpielsteinGenerator.vb" />
+    <Compile Include="Namespace Spielfeld\Testdaten.vb" />
     <Compile Include="SpielfeldKlassen\SpielfeldInfo.vb" />
+    <Compile Include="Namespace Spielfeld\Testmodule\SpielfeldTest_SpielsteinGenerator.vb" />
     <Compile Include="UserControls\Einstellungen\UctlEinstellungen.Designer.vb">
       <DependentUpon>UctlEinstellungen.vb</DependentUpon>
     </Compile>
@@ -166,6 +180,7 @@
   <ItemGroup>
     <EmbeddedResource Include="frmMain Sub Main\frmMain.resx">
       <DependentUpon>frmMain.vb</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -175,9 +190,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\Einstellungen\UctlEinstellungen.resx">
       <DependentUpon>UctlEinstellungen.vb</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\Spielfeld\UCtlSpielfeld.resx">
       <DependentUpon>UCtlSpielfeld.vb</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -227,14 +244,16 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MahjongGK.ico" />
-    <Content Include="Spielfeld\liesmich.txt" />
-    <Content Include="Spielfeld\Nicht verwenderter Code.txt" />
-    <Content Include="Spielfeld\PaintLimiterErläuterung.txt" />
+    <Content Include="Namespace Spielfeld\liesmich.txt" />
+    <Content Include="Namespace Spielfeld\Nicht verwenderter Code.txt" />
+    <Content Include="Namespace Spielfeld\FrameSchedulerErläuterung.txt" />
+    <Content Include="Textdateien\Mahjong Solitär Überlegungen.txt" />
     <Content Include="Textdateien\Über ChatGPT.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Comparer\" />
-    <Folder Include="Hilfsmodule\" />
+    <Folder Include="Hilfsklassen\" />
+    <Folder Include="Namespace Umfeld\" />
   </ItemGroup>
   <ItemGroup>
     <PublishFile Include="MahjongGK.ico">

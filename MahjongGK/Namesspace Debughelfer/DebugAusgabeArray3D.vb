@@ -29,7 +29,7 @@ Option Strict On
 #Disable Warning IDE1006
 
 
-Namespace DebugHilfen
+Namespace DebugHelfer
 
     ''' <summary>
     ''' Hier werden 3 verschiedene Methoden genutzt um Ausgaben sichtbar zu machen.
@@ -41,14 +41,25 @@ Namespace DebugHilfen
     ''' </summary>
     Public Module DebugAusgabeArray3D
 
-        Private Const SPALTENBREITE As Integer = 5
+        Private Const SPALTENBREITE As Integer = 6
 
-        Private Function Col(val As Object) As String
-            Return String.Format("{0," & SPALTENBREITE & "}", val)
+        ''rechtsbündig
+        'Private Function Col(val As integer) As String
+        '    Return String.Format("{0," & SPALTENBREITE & "}", val)
+        'End Function
+        ''rechtsbündig
+        'Private Function ColBracket(val As Integer) As String
+        '    Return String.Format("[{0," & (SPALTENBREITE - 2) & "}]", val)
+        'End Function
+        '
+        'linksbündig
+        Private Function Col(val As Integer) As String
+            Return String.Format("{0,-" & SPALTENBREITE & "}", val)
         End Function
-
-        Private Function ColBracket(val As Object) As String
-            Return String.Format("[{0," & (SPALTENBREITE - 2) & "}]", val)
+        '
+        'linksbündig
+        Private Function ColBracket(val As Integer) As String
+            Return String.Format("[{0,-" & (SPALTENBREITE - 2) & "}]", val)
         End Function
 
         '=== RTF-Ausgabe ===
@@ -109,7 +120,7 @@ Namespace DebugHilfen
                 For z As Integer = 0 To .arrFB.GetLength(2) - 1
                     sb.AppendLine($"=== Ebene Z = {z} ===")
 
-                    sb.Append("Y\X".PadLeft(6))
+                    sb.Append("Y\X".PadLeft(7))
                     For x As Integer = 0 To .arrFB.GetLength(0) - 1
                         sb.Append(Col(x))
                     Next
@@ -117,7 +128,7 @@ Namespace DebugHilfen
                     sb.AppendLine(New String("-"c, 6 + .arrFB.GetLength(0) * SPALTENBREITE))
 
                     For y As Integer = 0 To .arrFB.GetLength(1) - 1
-                        sb.Append($"   {y} |")
+                        sb.Append($"   {y,2} |")
                         For x As Integer = 0 To .arrFB.GetLength(0) - 1
                             Dim isHighlight As Boolean = highlightXyz IsNot Nothing AndAlso highlightXyz.Contains(x, y, z)
 
@@ -146,7 +157,7 @@ Namespace DebugHilfen
         End Sub
 
         '=== Konsolen-Ausgabe ===
-        Public Sub Print3DArrayToConsole(arr As Long(,,))
+        Public Sub Print3DArrayToConsole(arr As Integer(,,))
             If Not Debugger.IsAttached Then Exit Sub
 
             ConsoleHelper.AttachConsole()

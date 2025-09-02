@@ -25,42 +25,45 @@ Imports System.Reflection
 
 Public Module INI
 
-    ''' <summary>
-    ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString"
-    ''' Verwendung: Entweder über Dim Path As String = INI.AppDataDefault(.....)
-    ''' oder durch Nutzung (im Modul INI) einer Public Property Kopier_VorlageFürPfade As String
-    ''' Die gewünschten Pfade werden automatisch angelegt.
-    ''' </summary>
-    Public Enum AppDataSubDir
-        None
-        INI
-        Steine
-    End Enum
-    ''' <summary>
-    ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString\SubSubDefault.value.ToString"
-    ''' Verwendung wie AppDataSubDir
-    ''' </summary>
-    Public Enum AppDataSubSubDir
-        None
-        letztesSpiel
-        Layout
-    End Enum
+    '' Kopiervorlage für die Pfad/ Dateinamen-Enumeration
+    '' (Die verwendeten Enumerationen sind in Shared/Enumerationen)
+    ''
+    '' ''' <summary>
+    '' ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString"
+    '' ''' Verwendung: Entweder über Dim Path As String = INI.AppDataDefault(.....)
+    '' ''' oder durch Nutzung (im Modul INI) einer Public Property Kopier_VorlageFürPfade As String
+    '' ''' Die gewünschten Pfade werden automatisch angelegt.
+    '' ''' </summary>
+    '' Public Enum AppDataSubDir
+    ''     None
+    ''     INI
+    ''     Steine
+    '' End Enum
+    '' ''' <summary>
+    '' ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString\SubSubDefault.value.ToString"
+    '' ''' Verwendung wie AppDataSubDir
+    '' ''' </summary>
+    '' Public Enum AppDataSubSubDir
+    ''     None
+    ''     letztesSpiel
+    ''     Layout
+    '' End Enum
 
-    ''' <summary>
-    ''' Enumeration der verwendeten Dateinamen.
-    ''' Die Endung mit einem Unterstrich abtrennen.
-    ''' Die Endung muss 3 Zeichen lang sein.
-    ''' </summary>
-    Public Enum AppDataFileName
-        None
-        Steininfos_xml
-    End Enum
+    '' ''' <summary>
+    '' ''' Enumeration der verwendeten Dateinamen.
+    '' ''' Die Endung mit einem Unterstrich abtrennen.
+    '' ''' Die Endung muss 3 Zeichen lang sein.
+    '' ''' </summary>
+    '' Public Enum AppDataFileName
+    ''     None
+    ''     Steininfos_xml
+    '' End Enum
 
-    Public Enum AppDataTimeStamp
-        None
-        Add
-        LookForLastTimeStamp
-    End Enum
+    '' Public Enum AppDataTimeStamp
+    ''     None
+    ''     Add
+    ''     LookForLastTimeStamp
+    '' End Enum
 
     ''' <summary>
     ''' In dieser Enum kann ein Pattern verschlüsselt werden.
@@ -69,6 +72,8 @@ Public Module INI
     ''' _N_ = # (Number),
     ''' _S_ = * (Stern, Star),
     ''' _D_ = . (Dot, Punkt).
+    ''' _SD_ = *.
+    ''' _SDS_ = *.*
     ''' Beispiel: Dateiname_S__D_ext --> Dateiname*.ext
     ''' </summary>
     Public Enum AppDataFilePattern
@@ -76,13 +81,16 @@ Public Module INI
         Steininfos_xml
     End Enum
 
+    ' Zentrale Sammlung aller IniManager
+    'Wird aus New IniManager("Basis.ini") heraus gefüllt.
+    Public ReadOnly AllIniManagers As New List(Of IniManager)
+
     Public ReadOnly BasisIni As IniManager
-    'Public ReadOnly Spieler1Ini As IniManager
-    'Public ReadOnly Spieler2Ini As IniManager
+    Public ReadOnly Spieler1Ini As IniManager
+    Public ReadOnly Spieler2Ini As IniManager
 
     Sub New()
         'Instanzen für verschiedene INIs
-        'Falls Splash vorhanden, mit übergeben
         BasisIni = New IniManager("Basis.ini")
 
         'Spieler1Ini = New IniManager("Spieler1.ini")
@@ -97,7 +105,7 @@ Public Module INI
     End Sub
 
     ''' <summary>
-    ''' Muss aus frmMain.FormClosing herau aufgerufen werden, um sicherzustellen,
+    ''' Muss aus frmMain.FormClosing heraus aufgerufen werden, um sicherzustellen,
     ''' dass die INI-Daten alle gespeichert werden.
     ''' </summary>
     Public Sub DisposeIniManager()
@@ -134,13 +142,19 @@ Public Module INI
     'ReadOnly Properies, deren Wert abhängig ist von anderen gespeicherten
     'Ini-Werten.
 
+    '
+    ' Jedem Wert kann ein Kommentar hinzugefügt werden, der dann in der INI
+    ' erscheint. Update und Löschung der Kommentare werden automatisch aktualisiert.
+    ' Der Zeilentrenner für mehrzeilige Kommentare ist die Tilde "~".
     '----------------------------------
     ' Wrapper-Properties für Basisdaten
     '----------------------------------
 
 #Region "Kopiervorlagen"
 
-    '--- Strings für Pfade ----
+    '--------------------------
+    '--- Strings für PFADE ----
+    '--------------------------
     '    Pfade haben eine eigene Vorlage, da sie eine absolut/relativ-Konvertierung
     '    durchlaufen, um die Pfade zu unterschiedlichen Computern kompatibel zu machen.
     '    (Weitergeben der Dateien unterhalb des Programmverzeichnis, des Dokumenten-
@@ -160,19 +174,23 @@ Public Module INI
     ' 'Public Property Kopier_VorlageFürPfade As String
     '    Get
     '        Dim [Default] As String = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-    '        Return BasisIni.ReadPath(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadPath(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As String)
     '        BasisIni.WritePath(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
     '    End Set
     'End Property
 
-    '--- für normale Strings ---
+    '---------------------------
+    '--- für normale STRINGS ---
+    '---------------------------
 
     'Public Property Kopier_Vorlage As String
     '    Get
     '        Dim [Default] As String = Nothing
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As String)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
@@ -187,7 +205,8 @@ Public Module INI
     '    Get
     '        If Not _Kopier_Vorlage_Loaded Then
     '            Dim [Default] As String = "" ' oder Nothing oder Wert
-    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '            _Kopier_Vorlage_Loaded = True
     '        End If
     '        Return _Kopier_Vorlage
@@ -202,12 +221,15 @@ Public Module INI
     '    End Set
     'End Property
     '
-    '--- Char ---
-    '
+    '------------
+    '--- CHAR ---
+    '------------
+
     'Public Property Kopier_Vorlage As Char
     '    Get
     '        Dim [Default] As Char = ControlChars.NullChar
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Char)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
@@ -219,7 +241,8 @@ Public Module INI
     'Public Property Kopier_Vorlage As Boolean
     '    Get
     '        Dim [Default] As Boolean = False
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Boolean)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -232,7 +255,8 @@ Public Module INI
     '    Get
     '        If IsNothing(_Kopier_Vorlage) Then
     '            Dim [Default] As Boolean = False
-    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End If
     '        Return CBool(_Kopier_Vorlage)
     '    End Get
@@ -242,12 +266,15 @@ Public Module INI
     '    End Set
     'End Property
 
-    '--- Integer --- 
+    '---------------
+    '--- INTEGER ---
+    '---------------
 
     '    Public Property Kopier_Vorlage As Integer
     '        Get
     '            Dim [Default] As Integer = 0
-    '            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End Get
     '        Set(value As Integer)
     '            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -260,7 +287,8 @@ Public Module INI
     '    Get
     '        If Not _Kopier_Vorlage.HasValue Then
     '            Dim [Default] As Integer = 0
-    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End If
     '        Return _Kopier_Vorlage.Value
     '    End Get
@@ -270,12 +298,15 @@ Public Module INI
     '    End Set
     'End Property
     '
-    '--- Long ---
+    '------------
+    '--- LONG ---
+    '------------
     '
     'Public Property Kopier_Vorlage As Long
     '    Get
     '        Dim [Default] As Long = 0
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Long)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -288,7 +319,8 @@ Public Module INI
     '    Get
     '        If Not _Kopier_Vorlage_Long.HasValue Then
     '            Dim [Default] As Long = 0
-    '            _Kopier_Vorlage_Long = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage_Long = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End If
     '        Return _Kopier_Vorlage_Long.Value
     '    End Get
@@ -298,12 +330,15 @@ Public Module INI
     '    End Set
     'End Property
     '
-    '--- Single ---
-
+    '--------------
+    '--- SINGLE ---
+    '--------------
+    '
     'Public Property Kopier_Vorlage As Single
     '    Get
     '        Dim [Default] As Single = 0
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Single)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -315,7 +350,8 @@ Public Module INI
     '    Get
     '        If Not _Kopier_Vorlage.HasValue Then
     '            Dim [Default] As Single = 0
-    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End If
     '        Return _Kopier_Vorlage.Value
     '    End Get
@@ -324,13 +360,16 @@ Public Module INI
     '        _Kopier_Vorlage = Nothing
     '    End Set
     'End Property
-
-    '--- Double ---
-
+    '
+    '--------------
+    '--- DOUBLE ---
+    '--------------
+    '
     'Public Property Kopier_Vorlage As Double
     '    Get
     '        Dim [Default] As Double = 0
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Double)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -342,7 +381,8 @@ Public Module INI
     '    Get
     '        If Not _Kopier_Vorlage.HasValue Then
     '            Dim [Default] As Double = 0
-    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End If
     '        Return _Kopier_Vorlage.Value
     '    End Get
@@ -351,13 +391,16 @@ Public Module INI
     '        _Kopier_Vorlage = Nothing
     '    End Set
     'End Property
-
-    '--- Decimal ---
-
+    '
+    '---------------
+    '--- DECIMAL ---
+    '---------------
+    '
     'Public Property Kopier_Vorlage As Decimal
     '    Get
     '        Dim [Default] As Decimal = 0
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Decimal)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -369,7 +412,8 @@ Public Module INI
     '    Get
     '        If Not _Kopier_Vorlage.HasValue Then
     '            Dim [Default] As Decimal = 0
-    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End If
     '        Return _Kopier_Vorlage.Value
     '    End Get
@@ -378,17 +422,25 @@ Public Module INI
     '        _Kopier_Vorlage = Nothing
     '    End Set
     'End Property
-
+    '
+    '------------
+    '--- DATE ---
+    '------------
 
     'Public Property Kopier_Vorlage As Date
     '    Get
     '        Dim [Default] As Date = Date.MinValue
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Date)
     '        WriteDate(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
     '    End Set
     'End Property
+    '
+    '-------------
+    '--- COLOR ---
+    '-------------
     '
     ''für zeitkritische Abfragen
     'Private _Kopier_Vorlage As Color
@@ -398,7 +450,8 @@ Public Module INI
     '            Dim [Default] As Color = Color.Black
     '            'alternativ
     '            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
-    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '            Dim comment As String = Nothing
+    '            _Kopier_Vorlage = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        End If
     '        Return _Kopier_Vorlage
     '    End Get
@@ -407,62 +460,84 @@ Public Module INI
     '        _Kopier_Vorlage = Color.Empty
     '    End Set
     'End Property
-
+    '
     ''für nicht zeitkritische Abfragen
     'Public Property Kopier_Vorlage2 As Color
     '    Get
     '        Dim [Default] As Color = Color.Black
     '        'alternativ
     '        'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Color)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
     '    End Set
     'End Property
-
-    'Public Property Kopier_Vorlage As Point
+    '
+    '--------------------
+    '--- POINT POINTF ---
+    '--------------------
+    '
+    'Public Property Kopier_Vorlage As Point 'Für PointF Point durch PontF ersetzten
     '    Get
     '        Dim [Default] As New Point(100, 100)
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Point)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
     '    End Set
     'End Property
-
-    'Public Property Kopier_Vorlage As Size
+    '
+    '------------------
+    '--- SIZE SIZEF ---
+    '------------------
+    '
+    'Public Property Kopier_Vorlage As Size 'Für SizeF Size durch SizeF ersetzten.
     '    Get
     '        Dim [Default] As New Size(100,100)
-    '        return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Size)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
     '    End Set
     'End Property
-
-    'Public Property Kopier_Vorlage As Rectangle
+    '
+    '----------------------------
+    '--- RECTANGLE RECTANGLEF ---
+    '----------------------------
+    '
+    'Public Property Kopier_Vorlage As Rectangle 'Für RectangleF Rectangle durch RectangleF ersetzten.
     '    Get
     '        Dim [Default] As New Rectangle(0,0,100,100)
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Rectangle)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
     '    End Set
     'End Property
-
+    '
+    '------------
+    '--- FONT ---
+    '------------
+    '
     'Public Property Kopier_Vorlage As Font
     '    Get
     '        Dim [Default] As New Font("Arial", 8.25F, FontStyle.Regular)
-    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '    End Get
     '    Set(value As Font)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
     '    End Set
     'End Property
-
-
-
+    '
+    '------------
+    '--- ENUM ---
+    '------------
     '
     'Enumeration
     '' Die eENUM durch den Namen der Enumeration ersetzten.
@@ -472,22 +547,40 @@ Public Module INI
     'Public Property Kopier_Vorlage As eENUM
     '    Get
     '        Dim [Default] As String = eENUM.DEFAULT.ToString
-    '        Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+    '        Dim comment As String = Nothing
+    '        Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
     '        Dim aRetVal As MySendKeyEnum.eSendKeyDstApp = CType(System.Enum.Parse(aRetVal.GetType(), zRetVal), eENUM)
     '        Return aRetVal
     '    End Get
     '    Set(value As eENUM)
-    '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name)) = value.ToString
+    '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, value.ToString)
     '    End Set
     'End Property
-
-
 
 #End Region
 
     'Hinweis:
     'Die Reihenfolge beachten.
     'Aus ihr ergibt sich die Reihenfolge der Werte in der INI.
+    '
+    ''' <summary>
+    ''' Dies ist die erste Property und damit der erste Eintrag
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Hinweis_Bitte_lesen As String
+        Get
+            Dim [Default] As String = "Ende des Hinweis."
+            Dim comment As String = "Sie können hier Programmeinstellungen direkt ändern, bzw. Einstellungen ändern, die sich sonst nirgens ändern lassen." &
+                                    "~Sorgfältig arbeiten! Bei Fehlern arbeitet das Programm unvorhersehbar. Nicht bei laufendem Programm ändern." &
+                                    "~Sie können diese Ini-Datei einfach löschen. Sie wird dann mit Default-Werten neu erzeugt."
+
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
 
     Private _IfRunningInIDE_ShowAllStones As Boolean?
     ''' <summary>
@@ -499,7 +592,8 @@ Public Module INI
 
             If IsNothing(_IfRunningInIDE_ShowAllStones) Then
                 Dim [Default] As Boolean = False
-                _IfRunningInIDE_ShowAllStones = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _IfRunningInIDE_ShowAllStones = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             'musss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
             If Not Debugger.IsAttached() Then
@@ -523,7 +617,8 @@ Public Module INI
         Get
             If IsNothing(_IfRunningInIDE_InsertStoneIndex) Then
                 Dim [Default] As Boolean = False
-                _IfRunningInIDE_InsertStoneIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _IfRunningInIDE_InsertStoneIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
 
             'muss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
@@ -542,7 +637,8 @@ Public Module INI
     Public Property IfRunningInIDE_ShowErrorMsgInsteadOfException As Boolean
         Get
             Dim [Default] As Boolean = False
-            Dim retval As Boolean = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+            Dim comment As String = Nothing
+            Dim retval As Boolean = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             'muss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
             If Not Debugger.IsAttached() Then
                 Return False
@@ -563,7 +659,8 @@ Public Module INI
     Public Property Spiel_AutoSave As Boolean
         Get
             Dim [Default] As Boolean = True
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+            Dim comment As String = ""
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
@@ -578,13 +675,102 @@ Public Module INI
     Public Property Editor_UsingEditorAllowed As Boolean
         Get
             Dim [Default] As Boolean = True
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
 
+    Public Property Editor_VerhältnisNormalsteineZuSondersteine As Double
+        Get
+            Dim [Default] As Double = 17
+            Dim comment As String = "Sondersteine sind die 4 Blumen und die 4 Jahreszeiten." &
+                                    "~Hiermit wird gesteuert, auf wieviel Normalsteinpaare ein Sondersteinpaar kommt." &
+                                    "~Sollen alle Steine gleichhäufig vorkommen, ist der Wert 17, sollen die Sondersteine" &
+                                    "~nur halb so häufig vorkommen (wie im Spiel mit 144 Steinen) ist der Wert 34. Default: 17"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+
+    Public Property Editor_VorratNoSortAreaEndIndexDefault As Integer
+        Get
+            Dim [Default] As Integer = 9
+            Dim comment As String = "In Edtor läßt sich die Vorratskiste jederzeit neu mischen." &
+                                    "~Davon ausgenommen sind die Steine bis zum hier angegebenem Index." &
+                                    "~Default: 9 (=10 Steine), abschalten mit -1"
+            'Rückgabe 
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+    ' Die eENUM durch den Namen der Enumeration ersetzten.
+    ' eENUM ist der Name der Enumeration (Kommt vier mal vor)
+    ' eENUM.DEFAULT eben der Default (kommt einmal vor)
+    '
+    Public Property Kopier_GeneratorModusDefault As GeneratorModi
+        Get
+            Dim [Default] As String = GeneratorModi.StoneSet_144.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim aRetVal As GeneratorModi = CType(System.Enum.Parse(aRetVal.GetType(), zRetVal), GeneratorModi)
+            Return aRetVal
+        End Get
+        Set(value As GeneratorModi)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+    Public Property Editor_VorratMaxUBoundDefault As Integer
+        Get
+            Dim [Default] As Integer = MJ_STEINE_VORRATMAXDEFAULT
+            Dim comment As String = "Die Anzahl der Steine in der Vorratskiste die ""pro Portion"" erzeugt werden." &
+                                    "~Default: " & MJ_STEINE_VORRATMAXDEFAULT.ToString
+            'Rückgabe 
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Editor_VorratNachschubschwelleDefault As Integer
+        Get
+            Dim [Default] As Integer = MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT
+            Dim comment As String = "Unterschreitet die Anzahl der Steine in der Vorratskiste diesen Wert," &
+                                    "~wird Nachschub erzeugt. Default: " & MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT.ToString
+
+            'Rückgabe 
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Editor_SteinGeneratorDebugMode As Integer
+        Get
+            Dim [Default] As Integer = 0
+            Dim comment As String = "Mit einer bliebigen Zahl <> 0 erzeugt der SteinGenerator immer wieder die gleichen" &
+                                    "~Steinfolgen. Zum Austesten gedacht. Default = 0 (normaler Spielbetrieb)"
+            'Rückgabe 
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
 
 #Region "Spielfeld"
 
@@ -594,7 +780,8 @@ Public Module INI
         Get
             If IsNothing(_Spielfeld_BitmapHighQuality) Then
                 Dim [Default] As Boolean = False
-                _Spielfeld_BitmapHighQuality = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_BitmapHighQuality = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Spielfeld_BitmapHighQuality)
         End Get
@@ -624,7 +811,8 @@ Public Module INI
         Get
             If IsNothing(_Spielfeld_DrawBackgroundBitmap) Then
                 Dim [Default] As Boolean = False
-                _Spielfeld_DrawBackgroundBitmap = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_DrawBackgroundBitmap = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Spielfeld_DrawBackgroundBitmap)
         End Get
@@ -639,7 +827,8 @@ Public Module INI
         Get
             If Not _Spielfeld_BackgroundBitmapIndex.HasValue Then
                 Dim [Default] As Integer = 0
-                _Spielfeld_BackgroundBitmapIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_BackgroundBitmapIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielfeld_BackgroundBitmapIndex.Value
         End Get
@@ -654,7 +843,8 @@ Public Module INI
         Get
             If IsNothing(_Spielfeld_DrawBackgroundColor) Then
                 Dim [Default] As Boolean = True
-                _Spielfeld_DrawBackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_DrawBackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Spielfeld_DrawBackgroundColor)
         End Get
@@ -669,7 +859,8 @@ Public Module INI
         Get
             If _Spielfeld_BackgroundColor.IsEmpty Then
                 Dim [Default] As Color = IniManager.CvtHexStringToColor("FFC0C0C0")
-                _Spielfeld_BackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_BackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielfeld_BackgroundColor
         End Get
@@ -685,7 +876,8 @@ Public Module INI
         Get
             If IsNothing(_Spielfeld_DrawFraming) Then
                 Dim [Default] As Boolean = True
-                _Spielfeld_DrawFraming = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_DrawFraming = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Spielfeld_DrawFraming)
         End Get
@@ -700,7 +892,8 @@ Public Module INI
         Get
             If _Spielfeld_FramingColor.IsEmpty Then
                 Dim [Default] As Color = Color.Black
-                _Spielfeld_FramingColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_FramingColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielfeld_FramingColor
         End Get
@@ -715,7 +908,8 @@ Public Module INI
         Get
             If Not _Spielfeld_FramingThickness.HasValue Then
                 Dim [Default] As Single = 2
-                _Spielfeld_FramingThickness = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_FramingThickness = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielfeld_FramingThickness.Value
         End Get
@@ -729,8 +923,9 @@ Public Module INI
     Public Property Spielfeld_DrawRenderRect As Boolean
         Get
             If IsNothing(_Spielfeld_DrawRenderRect) Then
-                Dim [Default] As Boolean = If(Debugger.IsAttached, True, False)
-                _Spielfeld_DrawRenderRect = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim [Default] As Boolean = Debugger.IsAttached
+                Dim comment As String = Nothing
+                _Spielfeld_DrawRenderRect = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Spielfeld_DrawRenderRect)
         End Get
@@ -745,7 +940,8 @@ Public Module INI
         Get
             If _Spielfeld_RenderRectColor.IsEmpty Then
                 Dim [Default] As Color = Color.Black
-                _Spielfeld_RenderRectColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default])
+                Dim comment As String = Nothing
+                _Spielfeld_RenderRectColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielfeld_RenderRectColor
         End Get
@@ -754,6 +950,109 @@ Public Module INI
             _Spielfeld_RenderRectColor = Color.Empty
         End Set
     End Property
+
+    Public Property Spielfeld_RenderTimerInterval As Integer
+        Get
+            Dim [Default] As Integer = 15
+            Dim comment As String = "Normal 15 bis 20 (Einheit Millisekunden). Werte über 30 für schwache Rechner," &
+                                    "~= 1 führt zu einem stabilerem Takt aller Timer auf dem Computer und zu" &
+                                    "~etwas höherem Energieverbrauch." &
+                                    "~Zu hohe Werte verlangsamen und verlängern die Animation."
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+#Region "Regeln"
+
+    Public Property Regeln_WindsAreInOneClickGroup As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = "Wenn True ist das eine starke Spielregelvereinfachung:" &
+                                    "~Die 4 Winde können in beliebiger Kombination paarweise entnommen werden."
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+#End Region
+
+#Region "InfoMessageBox"
+
+    Public Property InfoMessageBox_FontHeader As Font
+        Get
+            Dim [Default] As New Font("Segoe UI", 12.0F, FontStyle.Bold)
+            Dim comment As String = "Andere serifenlose Standardschriften: Arial, Segoe UI, Calibri, Tahoma, Verdana, sans-serif. Default Segoe UI;12;Bold"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Font)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property InfoMessageBox_FontMessage As Font
+        Get
+            Dim [Default] As New Font("Segoe UI", 12.0F, FontStyle.Regular)
+            Dim comment As String = "Andere serifenlose Standardschriften: Arial, Segoe UI, Calibri, Tahoma, Verdana, sans-serif. Default Segoe UI;12;Regular"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Font)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property InfoMessageBox_FontHeaderMonoSpaced As Font
+        Get
+            Dim [Default] As New Font("Cascadia Mono", 12.0F, FontStyle.Bold)
+            Dim comment As String = "Andere diktengleiche Fonts: Cascadia Mono, Consolas, Lucida Console, Courier New, monospace. Default: Cascadia Mono;12;Bold"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Font)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property InfoMessageBox_FontMessageMonoSpaced As Font
+        Get
+            Dim [Default] As New Font("Cascadia Mono", 12.0F, FontStyle.Regular)
+            Dim comment As String = "Andere diktengleiche Fonts: Cascadia Mono, Consolas, Lucida Console, Courier New, monospace. Default: Cascadia Mono;12;Regular"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Font)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property InfoMessageBox_FormBackColor As Color
+        Get
+            Dim [Default] As Color = Color.Silver
+            'alternativ
+            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+    Public Property InfoMessageBox_TextBackColor As Color
+        Get
+            Dim [Default] As Color = Color.Beige
+            'alternativ
+            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+#End Region
 
 
 #End Region
@@ -843,11 +1142,13 @@ Public Module INI
                                     Optional timestamp As AppDataTimeStamp = AppDataTimeStamp.None,
                                     Optional maxFiles As Integer = Integer.MaxValue) As String
         '
-        Return BasisIni.AppDataFullPath(
-            If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
+
+
+        Return BasisIni.AppDataFullPath(If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
             String.Empty,
             filename,
-            timestamp
+            timestamp,
+            maxFiles
             )
 
     End Function
@@ -888,18 +1189,17 @@ Public Module INI
             If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
             If(subsubdir <> AppDataSubSubDir.None, subsubdir.ToString, String.Empty),
             filename,
-            timestamp
+            timestamp,
+            maxFiles
             )
 
     End Function
     '
     '-------------------------------
     '
-
+    '
     Public Function AppDataFullPathWithOpenFileDialog(subdir As AppDataSubDir,
                                     pattern As AppDataFilePattern,
-                                    Optional timestamp As AppDataTimeStamp = AppDataTimeStamp.None,
-                                    Optional maxFiles As Integer = Integer.MaxValue,
                                     Optional header As String = Nothing) As String
         '
         Dim path As String = BasisIni.AppDataFullPath(subdir, AppDataFileName.None, AppDataTimeStamp.None)
@@ -910,8 +1210,6 @@ Public Module INI
     '
     Public Function AppDataFullPathWithOpenFileDialog(subdir As AppDataSubDir,
                                     pattern As String,
-                                    Optional timestamp As AppDataTimeStamp = AppDataTimeStamp.None,
-                                    Optional maxFiles As Integer = Integer.MaxValue,
                                     Optional header As String = Nothing) As String
         '
         Dim path As String = BasisIni.AppDataFullPath(subdir, AppDataFileName.None, AppDataTimeStamp.None)
@@ -944,10 +1242,13 @@ Public Module INI
 
     Public Function PatternFromEnum(value As AppDataFilePattern) As String
         Dim s As String = value.ToString()
-        Return s.Replace("_DOT_", ".") _
+        Return s.Replace("_D_", ".") _
             .Replace("_Q_", "?") _
             .Replace("_N_", "#") _
-            .Replace("_S_", "*")
+            .Replace("_S_", "*") _
+            .Replace("_SD_", "*.") _
+            .Replace("_SDS_", "*.*")
+
     End Function
 
 
@@ -978,7 +1279,22 @@ Public Module INI
         End If
     End Function
 #End Region
+
+#Region "Initialisierung"
+
+
+    ''' <summary>
+    ''' Schaltet InitialisierungAktiv für alle IniManager um.
+    ''' </summary>
+    Public Sub SetInitialisierungAktivForAll(value As Boolean)
+        For Each m As IniManager In AllIniManagers
+            m.InitialisierungAktiv = value
+        Next
+    End Sub
+
     Public Sub InitAllDefaults()
+
+        SetInitialisierungAktivForAll(True)
 
         ' Hole alle öffentlichen Shared Methoden/Properties des Moduls
         Dim methods As MemberInfo() = GetType(INI).GetMembers(BindingFlags.Public Or BindingFlags.Static)
@@ -1019,7 +1335,11 @@ Public Module INI
             End Try
         Next
 
+        SetInitialisierungAktivForAll(False)
+
     End Sub
+
+#End Region
 
 End Module
 

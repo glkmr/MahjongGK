@@ -79,10 +79,10 @@ Namespace Spielfeld
                     Exit Sub
                 End If
             End If
-            If xMaxSteine > MJ_STEINE_SIDEBYSIDE_MAX OrElse yMaxSteine > MJ_STEINE_OVERANOTHER_MAX Then
+            If xMaxSteine > MJ_STEINE_SIDEBYSIDE_XMAX OrElse yMaxSteine > MJ_STEINE_OVERANOTHER_YMAX OrElse zMax > MJ_STEINE_LAYER_ZMAX Then
                 PaintSpielfeld_AktPermission = False
                 If Debugger.IsAttached And Not IfRunningInIDE_ShowErrorMsgInsteadOfException Then
-                    Throw New Exception($"Spielfeld Dimensionierung zu zu groß (xMax={xMax},yMax={yMax}) in SpielfeldManager.UpdateSpielfeld")
+                    Throw New Exception($"Spielfeld Dimensionierung zu zu groß (xMax={xMax},yMax={yMax},zMax={zMax})) in SpielfeldManager.UpdateSpielfeld")
                 Else
                     PaintSpielfeld_ErrorOccured = True
                     PaintSpielfeld_ShowErrorMessage = True
@@ -105,30 +105,28 @@ Namespace Spielfeld
             Dim summeWidth As Integer
             Dim summeHeight As Integer
 
-            Dim offset3DLeftSumme As Integer
-            Dim offset3DTopSumme As Integer
 
             Do
                 steinWidth -= 1
                 steinHeight -= 1
 
-                If steinWidth < MJ_GRAFIK_MIN_WIDTH OrElse steinHeight < MJ_GRAFIK_MIN_HEIGHT Then
-                    If Debugger.IsAttached And Not IfRunningInIDE_ShowErrorMsgInsteadOfException Then
-                        Throw New Exception($"Steine zu klein (steinWidth={steinWidth},steinHeight={steinHeight}) in SpielfeldManager.UpdateSpielfeld")
-                    Else
-                        PaintSpielfeld_ErrorOccured = True
-                        PaintSpielfeld_ShowErrorMessage = True
-                        PaintSpielfeld_ErrorMessage = $"TODO: Programmverhalten bei|Steine zu klein (steinWidth={steinWidth},steinHeight={steinHeight})|in SpielfeldManager.UpdateSpielfeld"
-                        Exit Sub
-                    End If
+                'If steinWidth < MJ_GRAFIK_MIN_WIDTH OrElse steinHeight < MJ_GRAFIK_MIN_HEIGHT Then
+                '    If Debugger.IsAttached And Not IfRunningInIDE_ShowErrorMsgInsteadOfException Then
+                '        Throw New Exception($"Steine zu klein (steinWidth={steinWidth},steinHeight={steinHeight}) in SpielfeldManager.UpdateSpielfeld")
+                '    Else
+                '        PaintSpielfeld_ErrorOccured = True
+                '        PaintSpielfeld_ShowErrorMessage = True
+                '        PaintSpielfeld_ErrorMessage = $"TODO: Programmverhalten bei|Steine zu klein (steinWidth={steinWidth},steinHeight={steinHeight})|in SpielfeldManager.UpdateSpielfeld"
+                '        Exit Sub
+                '    End If
 
-                End If
+                'End If
 
-                offset3DLeftJeEbene = Math.Max(CInt(MJ_OFFSET3DFAKTOR_MAX_LEFT * steinWidth), MJ_OFFSET3D_MIN_LEFT)
-                offset3DTopJeEbene = Math.Max(CInt(MJ_OFFSET3DFAKTOR_MAX_TOP * steinHeight), MJ_OFFSET3D_MIN_TOP)
+                offset3DLeftJeEbene = CInt(Math.Max(MJ_OFFSET3DFAKTOR_MAX_LEFT * steinWidth, MJ_OFFSET3D_MIN_LEFT))
+                offset3DTopJeEbene = CInt(Math.Max(MJ_OFFSET3DFAKTOR_MAX_TOP * steinHeight, MJ_OFFSET3D_MIN_TOP))
 
-                offset3DLeftSumme = offset3DLeftJeEbene * zMax
-                offset3DTopSumme = offset3DTopJeEbene * zMax
+                offset3DLeftSumme = offset3DLeftJeEbene * zMax + MJ_OFFSET3D_PADDING_LEFTRIGHT + MJ_OFFSET3D_PADDING_LEFTRIGHT
+                offset3DTopSumme = offset3DTopJeEbene * zMax + MJ_OFFSET3D_PADDING_TOPBOTTOM + MJ_OFFSET3D_PADDING_TOPBOTTOM
 
                 summeWidth = steinWidth * xMaxSteine + offset3DLeftSumme
                 summeHeight = steinHeight * yMaxSteine + offset3DTopSumme
@@ -166,6 +164,21 @@ Namespace Spielfeld
 
             steinWidthHalf = steinWidth \ 2
             steinHeightHalf = steinHeight \ 2
+
+            'getestet mit einem Spielfeld mit 75 X 25 X 25 Steinen
+            'und einem RenderRect mit 344 x 194 Pixeln
+            'und einem MJ_SPIELFELD_MIN_WIDTH MJ_SPIELFELD_MIN_HEIGHT von 600 x 400 Pixeln.
+            'Das läuft.
+            ''Auf das Spielfeld passen 75 x 25 x 25 = 625 Steine 
+
+            If steinWidthHalf < 2 OrElse steinHeightHalf < 3 Then
+                steinWidthHalf = 2
+                steinHeightHalf = 3
+                steinWidth = 4
+                steinHeight = 6
+            End If
+
+
             '
             'neu berechnen
             summeWidth = steinWidth * xMaxSteine + offset3DLeftSumme

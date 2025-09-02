@@ -40,10 +40,19 @@ Public Class IniManager
 
     Private ReadOnly _fileFullPath As String
     Private ReadOnly lines As New List(Of String)
+    Public Property InitialisierungAktiv As Boolean
+    ''' <summary>
+    ''' Für Debugzwecke der Dateiname mit Extension der Ini.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Name As String
 
 
     Public Sub New(fileName_ext As String)
         _fileFullPath = AppDataFileINI(fileName_ext)
+        Name = fileName_ext
+        'In die Liste in INI eintragen
+        AllIniManagers.Add(Me)
         Load()
     End Sub
     '
@@ -55,6 +64,7 @@ Public Class IniManager
     ' Boolean
     ' Color
     ' Size, Point, Rectangle
+    ' SizeF, PointF, RectangleF
     ' String, Char
     ' Font
     ' gibt es passsende Überladungen, die gleich
@@ -73,10 +83,10 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, value)
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As String) As String
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As String, comment As String) As String
         Get
             Try
-                Return ReadValueFromINI(folderAndKey, [default])
+                Return ReadValueFromINI(folderAndKey, [default], comment)
             Catch ex As Exception
                 Return [default]
             End Try
@@ -89,10 +99,10 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, CvtPathToRelPath(value))
     End Sub
 
-    Public ReadOnly Property ReadPath(folderAndKey As (folder As String, key As String), [default] As String) As String
+    Public ReadOnly Property ReadPath(folderAndKey As (folder As String, key As String), [default] As String, comment As String) As String
         Get
             Try
-                Return CvtRelPathToPath(ReadValueFromINI(folderAndKey, CvtPathToRelPath([default])))
+                Return CvtRelPathToPath(ReadValueFromINI(folderAndKey, CvtPathToRelPath([default]), comment))
             Catch ex As Exception
                 Return [default]
             End Try
@@ -105,10 +115,10 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, value.ToString)
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Char) As Char
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Char, comment As String) As Char
         Get
             Try
-                Dim s As String = ReadValueFromINI(folderAndKey, [default].ToString)
+                Dim s As String = ReadValueFromINI(folderAndKey, [default].ToString, comment)
                 If String.IsNullOrEmpty(s) Then
                     Return [default]
                 Else
@@ -124,11 +134,10 @@ Public Class IniManager
     Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Decimal)
         WriteValueToINI(folderAndKey, CvtDecimalToString(value))
     End Sub
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Decimal) As Decimal
-
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Decimal, comment As String) As Decimal
         Get
             Try
-                Return CvtStringToDecimal(ReadValueFromINI(folderAndKey, CvtDecimalToString([default])), [default])
+                Return CvtStringToDecimal(ReadValueFromINI(folderAndKey, CvtDecimalToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -140,11 +149,11 @@ Public Class IniManager
     Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Double)
         WriteValueToINI(folderAndKey, CvtDoubleToString(value))
     End Sub
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Double) As Double
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Double, comment As String) As Double
 
         Get
             Try
-                Return CvtStringToDouble(ReadValueFromINI(folderAndKey, CvtDoubleToString([default])), [default])
+                Return CvtStringToDouble(ReadValueFromINI(folderAndKey, CvtDoubleToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -156,11 +165,10 @@ Public Class IniManager
     Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Single)
         WriteValueToINI(folderAndKey, CvtSingleToString(value))
     End Sub
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Single) As Single
-
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Single, comment As String) As Single
         Get
             Try
-                Return CvtStringToSingle(ReadValueFromINI(folderAndKey, CvtSingleToString([default])), [default])
+                Return CvtStringToSingle(ReadValueFromINI(folderAndKey, CvtSingleToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -173,10 +181,10 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, CvtLongToString(value))
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Long) As Long
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Long, comment As String) As Long
         Get
             Try
-                Return CvtStringToLong(ReadValueFromINI(folderAndKey, CvtLongToString([default])), [default])
+                Return CvtStringToLong(ReadValueFromINI(folderAndKey, CvtLongToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -189,10 +197,10 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, CvtIntegerToString(value))
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Integer) As Integer
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Integer, comment As String) As Integer
         Get
             Try
-                Return CvtStringToInteger(ReadValueFromINI(folderAndKey, CvtIntegerToString([default])), [default])
+                Return CvtStringToInteger(ReadValueFromINI(folderAndKey, CvtIntegerToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -204,10 +212,10 @@ Public Class IniManager
     Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Boolean)
         WriteValueToINI(folderAndKey, CvtBooleanToString(value))
     End Sub
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Boolean) As Boolean
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Boolean, comment As String) As Boolean
         Get
             Try
-                Return CvtStringToBoolean(ReadValueFromINI(folderAndKey, CvtBooleanToString([default])), [default])
+                Return CvtStringToBoolean(ReadValueFromINI(folderAndKey, CvtBooleanToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -221,10 +229,10 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, CvtColorToHexString(value))
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Color) As Color
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Color, comment As String) As Color
         Get
             Try
-                Return CvtHexStringToColor(ReadValueFromINI(folderAndKey, CvtColorToHexString([default])), [default])
+                Return CvtHexStringToColor(ReadValueFromINI(folderAndKey, CvtColorToHexString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -236,10 +244,10 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, CvtDateToString(value))
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Date) As Date
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Date, comment As String) As Date
         Get
             Try
-                Return CvtStringToDate(ReadValueFromINI(folderAndKey, CvtDateToString([default])), [default])
+                Return CvtStringToDate(ReadValueFromINI(folderAndKey, CvtDateToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -251,10 +259,25 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, CvtPointToString(value))
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Point) As Point
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Point, comment As String) As Point
         Get
             Try
-                Return CvtStringToPoint(ReadValueFromINI(folderAndKey, CvtPointToString([default])), [default])
+                Return CvtStringToPoint(ReadValueFromINI(folderAndKey, CvtPointToString([default]), comment), [default])
+            Catch ex As Exception
+                Return [default]
+            End Try
+        End Get
+    End Property
+    '
+    '--- PointF
+    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As PointF)
+        WriteValueToINI(folderAndKey, CvtPointFToString(value))
+    End Sub
+
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As PointF, comment As String) As PointF
+        Get
+            Try
+                Return CvtStringToPointF(ReadValueFromINI(folderAndKey, CvtPointFToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -266,10 +289,25 @@ Public Class IniManager
         WriteValueToINI(folderAndKey, CvtSizeToString(value))
     End Sub
 
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Size) As Size
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Size, comment As String) As Size
         Get
             Try
-                Return CvtStringToSize(ReadValueFromINI(folderAndKey, CvtSizeToString([default])), [default])
+                Return CvtStringToSize(ReadValueFromINI(folderAndKey, CvtSizeToString([default]), comment), [default])
+            Catch ex As Exception
+                Return [default]
+            End Try
+        End Get
+    End Property
+    '
+    '--- SizeF
+    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As SizeF)
+        WriteValueToINI(folderAndKey, CvtSizeFToString(value))
+    End Sub
+
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As SizeF, comment As String) As SizeF
+        Get
+            Try
+                Return CvtStringToSizeF(ReadValueFromINI(folderAndKey, CvtSizeFToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -280,10 +318,24 @@ Public Class IniManager
     Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As Rectangle)
         WriteValueToINI(folderAndKey, CvtRectToString(value))
     End Sub
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Rectangle) As Rectangle
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Rectangle, comment As String) As Rectangle
         Get
             Try
-                Return CvtStringToRect(ReadValueFromINI(folderAndKey, CvtRectToString([default])), [default])
+                Return CvtStringToRect(ReadValueFromINI(folderAndKey, CvtRectToString([default]), comment), [default])
+            Catch ex As Exception
+                Return [default]
+            End Try
+        End Get
+    End Property
+    '
+    '--- RectangleF
+    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As RectangleF)
+        WriteValueToINI(folderAndKey, CvtRectFToString(value))
+    End Sub
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As RectangleF, comment As String) As RectangleF
+        Get
+            Try
+                Return CvtStringToRectF(ReadValueFromINI(folderAndKey, CvtRectFToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
@@ -294,26 +346,188 @@ Public Class IniManager
     Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As Font)
         WriteValueToINI(folderAndKey, CvtFontToString(value))
     End Sub
-    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Font) As Font
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Font, comment As String) As Font
         Get
             Try
-                Return CvtStringToFont(ReadValueFromINI(folderAndKey, CvtFontToString([default])), [default])
+                Return CvtStringToFont(ReadValueFromINI(folderAndKey, CvtFontToString([default]), comment), [default])
             Catch ex As Exception
                 Return [default]
             End Try
         End Get
     End Property
 
+#End Region
 
+#Region "Lesen und schreiben - zentrale Routinen"
+
+    '
     ''' <summary>
-    ''' Liest einen Wert aus, oder legt ihn mit Default neu an.
+    ''' Liefert die Zeilennummer der Folder-Überschrift "[Folder]" oder -1.
     ''' </summary>
-    Private Function ReadValueFromINI(folderAndKey As (folder As String, key As String), defaultValue As String) As String
+    Private Function FindFolderLine(folder As String) As Integer
+        Dim search As String = "[" & folder & "]"
+        For i As Integer = 0 To lines.Count - 1
+            If lines(i).Equals(search, StringComparison.OrdinalIgnoreCase) Then
+                Return i
+            End If
+        Next
+        Return -1
+    End Function
+
+    '
+    ''' <summary>
+    ''' Liefert die Zeilennummer der Key-Zeile "key=..." innerhalb des Folders oder -1.
+    ''' </summary>
+    Private Function FindKeyLine(folderAndKey As (folder As String, key As String)) As Integer
+        Dim folderLine As Integer = FindFolderLine(folderAndKey.folder)
+        If folderLine < 0 Then Return -1
+
+        For i As Integer = folderLine + 1 To lines.Count - 1
+            Dim l As String = lines(i)
+            If l.StartsWith("[") Then Return -1 ' nächster Abschnitt erreicht
+            If l.StartsWith(folderAndKey.key & "=", StringComparison.OrdinalIgnoreCase) Then
+                Return i
+            End If
+        Next
+        Return -1
+    End Function
+
+    ' ---------- Kommentar-Handling (neu) ----------
+
+    '
+    ''' <summary>
+    ''' Baut aus dem Kommentartext (Zeilentrenner "~") die kommentierten Zeilen inkl. Spacer.
+    ''' Leere oder Nothing -> leere Liste (kein Kommentar).
+    ''' </summary>
+    Private Function BuildCommentBlockLines(comment As String) As List(Of String)
+        Dim result As New List(Of String)
+        If String.IsNullOrWhiteSpace(comment) Then
+            Return result
+        End If
+
+        ' Abstand zum vorherigen Eintrag (auskommentierte Leerzeile)
+        result.Add(";")
+
+        ' Mehrzeilig via "~"
+        Dim parts As String() = comment.Split(New String() {"~"}, StringSplitOptions.None)
+        For Each p As String In parts
+            ' Keine Farben/Meta – einfach als ";"-Kommentar schreiben
+            result.Add(";" & p)
+        Next
+        Return result
+    End Function
+
+    '
+    ''' <summary>
+    ''' Findet die zum Key gehörige Kommentar-Blockregion (zusammenhängende ";"-Zeilen direkt über dem Key).
+    ''' Gibt (start,end) zurück – inkl. Spacer falls vorhanden. Nichts gefunden -> (-1,-1).
+    ''' </summary>
+    Private Function FindCommentBlockForKey(keyLine As Integer, folderLine As Integer) As (start As Integer, [end] As Integer)
+        If keyLine <= 0 Then Return (-1, -1)
+
+        Dim first As Integer = keyLine - 1
+        ' rückwärts alle Kommentarzeilen aufsammeln
+        While first > folderLine
+            Dim s As String = lines(first)
+            If s.TrimStart().StartsWith(";", StringComparison.Ordinal) Then
+                first -= 1
+            Else
+                Exit While
+            End If
+        End While
+
+        first += 1 ' auf die erste Kommentarzeile vor dem Key setzen
+        Dim last As Integer = keyLine - 1
+
+        If first > last Then
+            Return (-1, -1)
+        End If
+
+        ' Sicherheit: prüfen, ob es wirklich Kommentar ist
+        If Not lines(first).TrimStart().StartsWith(";", StringComparison.Ordinal) Then
+            Return (-1, -1)
+        End If
+
+        Return (first, last)
+    End Function
+
+    '
+    ''' <summary>
+    ''' Stellt sicher, dass der Kommentarblock über dem Key dem gewünschten Kommentar entspricht.
+    ''' - Bei leerem gewünschtem Kommentar wird ein bestehender Block entfernt.
+    ''' - Bei abweichendem Kommentar wird ersetzt.
+    ''' - Bei fehlendem Kommentar wird eingefügt.
+    ''' </summary>
+    Private Sub EnsureCommentForKey(desiredComment As String,
+                                keyLine As Integer,
+                                folderLine As Integer)
+
+        Dim desired As List(Of String) = BuildCommentBlockLines(desiredComment)
+        Dim region As (start As Integer, [end] As Integer) = FindCommentBlockForKey(keyLine, folderLine)
+
+        If desired.Count = 0 Then
+            ' Kommentar soll nicht existieren -> vorhandenen entfernen
+            If region.start <> -1 Then
+                lines.RemoveRange(region.start, region.[end] - region.start + 1)
+                MarkChanged()
+            End If
+            Return
+        End If
+
+        If region.start = -1 Then
+            ' Kein Kommentar vorhanden -> einfügen vor dem Key
+            lines.InsertRange(keyLine, desired)
+            MarkChanged()
+            Return
+        End If
+
+        ' Vergleich: ist der Block identisch?
+        Dim count As Integer = region.[end] - region.start + 1
+        Dim equal As Boolean = (count = desired.Count)
+        If equal Then
+            For i As Integer = 0 To count - 1
+                If Not String.Equals(lines(region.start + i), desired(i), StringComparison.Ordinal) Then
+                    equal = False
+                    Exit For
+                End If
+            Next
+        End If
+
+        If Not equal Then
+            ' Ersetzen
+            lines.RemoveRange(region.start, count)
+            lines.InsertRange(region.start, desired)
+            MarkChanged()
+        End If
+    End Sub
+
+    ' ---------- Lesen / Schreiben mit Kommentarpflege ----------
+
+    '
+    ''' <summary>
+    ''' Liest einen Wert aus – oder legt ihn (inkl. Kommentar, wenn initialisierungAktiv=True) mit Default neu an.
+    ''' </summary>
+    Private Function ReadValueFromINI(folderAndKey As (folder As String, key As String),
+                                  defaultValue As String,
+                                  comment As String) As String
 
         Dim idx As Integer = FindKeyLine(folderAndKey)
+
         If idx < 0 Then
-            WriteValueToINI(folderAndKey, defaultValue)
+            ' Key existiert nicht -> neu anlegen (falls Initialisierung gewünscht inkl. Kommentar)
+            WriteValueToINI(folderAndKey, defaultValue, comment)
             Return defaultValue
+        End If
+
+        ' Beim Initialisierungslauf Kommentare synchronisieren (ändern/löschen/anlegen)
+        If InitialisierungAktiv Then
+            Dim folderLine As Integer = FindFolderLine(folderAndKey.folder)
+            If folderLine >= 0 Then
+                EnsureCommentForKey(comment, idx, folderLine)
+                ' Achtung: EnsureCommentForKey kann vor idx eingefügt/entfernt haben -> keyLine evtl. verschoben.
+                ' Für das reine Lesen ist das egal, wir lesen die Zeile neu:
+                idx = FindKeyLine(folderAndKey)
+            End If
         End If
 
         Dim line As String = lines(idx)
@@ -326,10 +540,13 @@ Public Class IniManager
 
     End Function
 
+    '
     ''' <summary>
-    ''' Schreibt einen Wert (fügt an, falls er nicht existiert).
+    ''' Schreibt einen Wert (fügt an, falls er nicht existiert). Beim Initialisierungslauf werden Kommentare gepflegt.
     ''' </summary>
-    Private Sub WriteValueToINI(folderAndKey As (folder As String, key As String), value As String)
+    Private Sub WriteValueToINI(folderAndKey As (folder As String, key As String),
+                                value As String,
+                                Optional comment As String = Nothing)
 
         value = CvtStringValueToINIValue(value)
 
@@ -338,6 +555,12 @@ Public Class IniManager
         ' Folder nicht vorhanden -> neu anlegen
         If folderLine < 0 Then
             lines.Add("[" & folderAndKey.folder & "]")
+            If InitialisierungAktiv Then
+                Dim block As List(Of String) = BuildCommentBlockLines(comment)
+                If block.Count > 0 Then
+                    lines.AddRange(block)
+                End If
+            End If
             lines.Add($"{folderAndKey.key}={value}")
             MarkChanged()
             Return
@@ -347,33 +570,55 @@ Public Class IniManager
         For i As Integer = folderLine + 1 To lines.Count - 1
             Dim l As String = lines(i)
 
-            If String.IsNullOrWhiteSpace(l) OrElse l.StartsWith(";") Then
+            ' Leere oder Kommentarzeilen überspringen (gehören zu vorherigen Keys)
+            If String.IsNullOrWhiteSpace(l) OrElse l.TrimStart().StartsWith(";") Then
                 Continue For
             End If
 
             If l.StartsWith("[") Then
-                ' nächster Abschnitt erreicht -> einfügen
-                lines.Insert(i, $"{folderAndKey.key}={value}")
+                ' nächster Abschnitt erreicht -> hier einfügen
+                Dim insertAt As Integer = i
+                If InitialisierungAktiv Then
+                    Dim block As List(Of String) = BuildCommentBlockLines(comment)
+                    If block.Count > 0 Then
+                        lines.InsertRange(insertAt, block)
+                        insertAt += block.Count
+                    End If
+                End If
+                lines.Insert(insertAt, $"{folderAndKey.key}={value}")
                 MarkChanged()
                 Return
             End If
 
             If l.StartsWith(folderAndKey.key & "=", StringComparison.OrdinalIgnoreCase) Then
+                ' Key existiert -> Wert ersetzen
                 lines(i) = $"{folderAndKey.key}={value}"
                 MarkChanged()
+
+                ' Kommentare ggf. pflegen
+                If InitialisierungAktiv Then
+                    EnsureCommentForKey(comment, i, folderLine)
+                End If
                 Return
             End If
         Next
 
-        ' Key nicht gefunden, also am Ende des Folders anhängen
+        ' Ende des Folders erreicht -> am Schluss anhängen
+        Dim appendAt As Integer = lines.Count
+        If InitialisierungAktiv Then
+            Dim block As List(Of String) = BuildCommentBlockLines(comment)
+            If block.Count > 0 Then
+                lines.AddRange(block)
+            End If
+        End If
         lines.Add($"{folderAndKey.key}={value}")
         MarkChanged()
     End Sub
 
+
 #End Region
 
 #Region "Konvertierungen"
-
 
 
     'In die INI werden nur einzeilige Strings geschrieben, hier sind die Konvertierungsroutinen.
@@ -381,44 +626,6 @@ Public Class IniManager
     'Das ist als Sicherungsnetz zu verstehen für den Fall, daß der Anwender in der INI herumpfuscht
     'und Werte nicht mehr lesbar sind.
 
-    Public Function CvtSingleToString(value As Single) As String
-        Return value.ToString(CultureInfo.InvariantCulture)
-    End Function
-
-    Public Function CvtStringToSingle(s As String, [default] As Single) As Single
-        Dim result As Single
-        If Single.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
-                           CultureInfo.InvariantCulture, result) Then
-            Return result
-        End If
-        Return [default]
-    End Function
-
-    Public Function CvtDoubleToString(value As Double) As String
-        Return value.ToString(CultureInfo.InvariantCulture)
-    End Function
-
-    Public Function CvtStringToDouble(s As String, [default] As Double) As Double
-        Dim result As Double
-        If Double.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
-                           CultureInfo.InvariantCulture, result) Then
-            Return result
-        End If
-        Return [default]
-    End Function
-
-    Public Function CvtDecimalToString(value As Decimal) As String
-        Return value.ToString(CultureInfo.InvariantCulture)
-    End Function
-
-    Public Function CvtStringToDecimal(s As String, [default] As Decimal) As Decimal
-        Dim result As Decimal
-        If Decimal.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
-                            CultureInfo.InvariantCulture, result) Then
-            Return result
-        End If
-        Return [default]
-    End Function
 
     Public Function CvtIntegerToString(value As Integer) As String
         Return value.ToString(CultureInfo.InvariantCulture)
@@ -503,119 +710,268 @@ Public Class IniManager
             Throw New Exception($"Vermutlicher Programmierfehler: ""{hex}"" kann nicht in Color konvertiert werden in INI.CvtHexStringToColor")
         End Try
     End Function
-    ''' <summary>
-    ''' Wandelt ein Date in einen kulturunabhängigen String um (ISO 8601).
-    ''' </summary>
+
+    '==========================================================
+    ' Zahlen (Single/Double/Decimal) – InvariantCulture
+    '==========================================================
+    Public Function CvtSingleToString(value As Single) As String
+        Return value.ToString(CultureInfo.InvariantCulture)
+    End Function
+
+    Public Function CvtStringToSingle(s As String, [default] As Single) As Single
+        Dim result As Single
+        If Single.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
+                       CultureInfo.InvariantCulture, result) Then
+            Return result
+        End If
+        Return [default]
+    End Function
+
+    Public Function CvtDoubleToString(value As Double) As String
+        Return value.ToString(CultureInfo.InvariantCulture)
+    End Function
+
+    Public Function CvtStringToDouble(s As String, [default] As Double) As Double
+        Dim result As Double
+        If Double.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
+                       CultureInfo.InvariantCulture, result) Then
+            Return result
+        End If
+        Return [default]
+    End Function
+
+    Public Function CvtDecimalToString(value As Decimal) As String
+        Return value.ToString(CultureInfo.InvariantCulture)
+    End Function
+
+    Public Function CvtStringToDecimal(s As String, [default] As Decimal) As Decimal
+        Dim result As Decimal
+        If Decimal.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
+                        CultureInfo.InvariantCulture, result) Then
+            Return result
+        End If
+        Return [default]
+    End Function
+
+    '==========================================================
+    ' Datum – ISO-8601 Roundtrip ("o") statt "s"
+    '==========================================================
     Public Function CvtDateToString(d As Date) As String
-        ' "s" = Sortable DateTime Pattern: yyyy-MM-ddTHH:mm:ss
-        Return d.ToString("s", System.Globalization.CultureInfo.InvariantCulture)
+        ' "o" bewahrt Millisekunden und Kind (UTC/Local/Unspecified)
+        Return d.ToString("o", CultureInfo.InvariantCulture)
     End Function
 
-    ''' <summary>
-    ''' Wandelt einen String (wie von DateToString) wieder in ein Date um.
-    ''' </summary>
     Public Function CvtStringToDate(s As String, [default] As Date) As Date
-        Try
-            Return Date.ParseExact(s, "s", System.Globalization.CultureInfo.InvariantCulture)
-        Catch ex As Exception
-            Return [default]
-        End Try
+        Dim dt As Date
+        If Date.TryParseExact(s, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, dt) Then
+            Return dt
+        End If
+        Return [default]
     End Function
 
-    ''' <summary>
-    ''' Alternative Speicherung über Ticks (exakt, auch für Millisekunden)
-    ''' </summary>
+    ' Alternative über Ticks – robust gegen Kultur
     Public Function CvtDateToTicksString(d As Date) As String
-        Return d.Ticks.ToString()
+        Return d.Ticks.ToString(CultureInfo.InvariantCulture)
     End Function
 
-    ''' <summary>
-    ''' Lädt ein Date aus dem Ticks-String.
-    ''' </summary>
     Public Function CvtTicksStringToDate(s As String) As Date
-        Return New Date(Long.Parse(s))
+        Dim ticks As Long
+        If Long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, ticks) Then
+            Return New Date(ticks)
+        End If
+        ' Fallback: jetzt ist 0 sinnvoller als Exception
+        Return New Date(0)
     End Function
 
-    ' ----------------- Point -----------------
-    Public Function CvtPointToString(p As Point) As String
-        Return $"{p.X},{p.Y}"
-    End Function
-
-    Public Function CvtStringToPoint(s As String, [default] As Point) As Point
-        Try
-            Dim parts() As String = s.Split(","c)
-            Return New Point(CInt(parts(0)), CInt(parts(1)))
-        Catch ex As Exception
-            Return [default]
-        End Try
-    End Function
-
-    ' ----------------- Size -----------------
-    Public Function CvtSizeToString(sz As Size) As String
-        Return $"{sz.Width},{sz.Height}"
-    End Function
-
-    Public Function CvtStringToSize(s As String, [default] As Size) As Size
-        Try
-            Dim parts() As String = s.Split(","c)
-            Return New Size(CInt(parts(0)), CInt(parts(1)))
-        Catch ex As Exception
-            Return [default]
-        End Try
-    End Function
-
-    ' ----------------- Rectangle -----------------
-    Public Function CvtRectToString(r As Rectangle) As String
-        Return $"{r.X},{r.Y},{r.Width},{r.Height}"
-    End Function
-
-    Public Function CvtStringToRect(s As String, [default] As Rectangle) As Rectangle
-        Try
-            Dim parts() As String = s.Split(","c)
-            Return New Rectangle(CInt(parts(0)), CInt(parts(1)), CInt(parts(2)), CInt(parts(3)))
-        Catch ex As Exception
-            Return [default]
-        End Try
-    End Function
-
-    ' ----------------- Font -----------------
+    '==========================================================
+    ' Font – Semikolon-Format "Name;Size;Style"
+    '   (liest zusätzlich alte Komma-Variante)
+    '==========================================================
     Public Function CvtFontToString(f As Font) As String
-        ' Beispiel: "Arial,12,Regular"
-        Return $"{f.Name},{f.Size},{f.Style}"
+        ' Beispiel: "Arial;8.25;Bold"
+        Return String.Format(CultureInfo.InvariantCulture, "{0};{1};{2}", f.Name, f.Size, f.Style)
     End Function
 
     Public Function CvtStringToFont(s As String, defaultFont As Font) As Font
         Try
-            If String.IsNullOrWhiteSpace(s) Then
+            If String.IsNullOrWhiteSpace(s) Then Return defaultFont
+
+            Dim name As String, sizeStr As String, styleStr As String
+
+            If s.Contains(";"c) Then
+                ' Neues Format: Name;Size;Style
+                Dim parts() As String = s.Split(";"c)
+                If parts.Length < 3 Then Return defaultFont
+                name = parts(0).Trim()
+                sizeStr = parts(1).Trim()
+                styleStr = parts(2).Trim()
+            Else
+                ' Legacy: "Name,8,25,Bold" oder "Name,12,Bold"
+                Dim parts() As String = s.Split(","c)
+                Select Case parts.Length
+                    Case >= 4
+                        name = parts(0).Trim()
+                        sizeStr = parts(1).Trim() & "."c & parts(2).Trim() ' 8 + 25 -> 8.25 (invariant)
+                        styleStr = parts(3).Trim()
+                    Case 3
+                        name = parts(0).Trim()
+                        sizeStr = parts(1).Trim()
+                        styleStr = parts(2).Trim()
+                    Case Else
+                        Return defaultFont
+                End Select
+            End If
+
+            Dim sizeVal As Single
+            If Not Single.TryParse(sizeStr, NumberStyles.Float, CultureInfo.InvariantCulture, sizeVal) Then
                 Return defaultFont
             End If
 
-            Dim parts() As String = s.Split(","c)
-            If parts.Length < 3 Then
-                Return defaultFont
-            End If
-
-            Dim name As String = parts(0).Trim()
-            Dim size As Single
             Dim style As FontStyle
-
-            If Not Single.TryParse(parts(1).Trim(), Globalization.NumberStyles.Float,
-                                   Globalization.CultureInfo.InvariantCulture, size) Then
-                Return defaultFont
+            If Not [Enum].TryParse(styleStr, True, style) Then
+                ' Zahl zulassen (z. B. "1")
+                Dim styleInt As Integer
+                If Integer.TryParse(styleStr, NumberStyles.Integer, CultureInfo.InvariantCulture, styleInt) Then
+                    style = CType(styleInt, FontStyle)
+                Else
+                    style = defaultFont.Style
+                End If
             End If
 
-            If Not [Enum].TryParse(parts(2).Trim(), True, style) Then
-                Return defaultFont
-            End If
-
-            Return New Font(name, size, style)
-
+            Return New Font(name, sizeVal, style)
         Catch
-            ' Falls wirklich irgendetwas knallt -> Default zurück
             Return defaultFont
         End Try
     End Function
 
+    '==========================================================
+    ' Point/Size/Rectangle – Semikolon-Format; int-basiert
+    '   (liest zusätzlich alte Komma-Variante)
+    '==========================================================
+    Public Function CvtPointToString(p As Point) As String
+        Return String.Format(CultureInfo.InvariantCulture, "{0};{1}", p.X, p.Y)
+    End Function
+
+    Public Function CvtStringToPoint(s As String, [default] As Point) As Point
+        Try
+            Dim parts() As String = SplitSmart2(s)
+            Dim x As Integer = Integer.Parse(parts(0), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Dim y As Integer = Integer.Parse(parts(1), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Return New Point(x, y)
+        Catch
+            Return [default]
+        End Try
+    End Function
+
+    Public Function CvtSizeToString(sz As Size) As String
+        Return String.Format(CultureInfo.InvariantCulture, "{0};{1}", sz.Width, sz.Height)
+    End Function
+
+    Public Function CvtStringToSize(s As String, [default] As Size) As Size
+        Try
+            Dim parts() As String = SplitSmart2(s)
+            Dim w As Integer = Integer.Parse(parts(0), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Dim h As Integer = Integer.Parse(parts(1), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Return New Size(w, h)
+        Catch
+            Return [default]
+        End Try
+    End Function
+
+    Public Function CvtRectToString(r As Rectangle) As String
+        Return String.Format(CultureInfo.InvariantCulture, "{0};{1};{2};{3}", r.X, r.Y, r.Width, r.Height)
+    End Function
+
+    Public Function CvtStringToRect(s As String, [default] As Rectangle) As Rectangle
+        Try
+            Dim parts As String() = SplitSmart4(s)
+            Dim x As Integer = Integer.Parse(parts(0), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Dim y As Integer = Integer.Parse(parts(1), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Dim w As Integer = Integer.Parse(parts(2), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Dim h As Integer = Integer.Parse(parts(3), NumberStyles.Integer, CultureInfo.InvariantCulture)
+            Return New Rectangle(x, y, w, h)
+        Catch
+            Return [default]
+        End Try
+    End Function
+
+    '==========================================================
+    ' PointF/SizeF/RectangleF – Semikolon-Format; float-basiert
+    '==========================================================
+    Public Function CvtPointFToString(p As PointF) As String
+        Return String.Format(CultureInfo.InvariantCulture, "{0};{1}", p.X, p.Y)
+    End Function
+
+    Public Function CvtStringToPointF(s As String, [default] As PointF) As PointF
+        Try
+            Dim parts() As String = SplitSmart2(s)
+            Dim x As Single = Single.Parse(parts(0), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Dim y As Single = Single.Parse(parts(1), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Return New PointF(x, y)
+        Catch
+            Return [default]
+        End Try
+    End Function
+
+    Public Function CvtSizeFToString(sz As SizeF) As String
+        Return String.Format(CultureInfo.InvariantCulture, "{0};{1}", sz.Width, sz.Height)
+    End Function
+
+    Public Function CvtStringToSizeF(s As String, [default] As SizeF) As SizeF
+        Try
+            Dim parts() As String = SplitSmart2(s)
+            Dim w As Single = Single.Parse(parts(0), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Dim h As Single = Single.Parse(parts(1), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Return New SizeF(w, h)
+        Catch
+            Return [default]
+        End Try
+    End Function
+
+    Public Function CvtRectFToString(r As RectangleF) As String
+        Return String.Format(CultureInfo.InvariantCulture, "{0};{1};{2};{3}", r.X, r.Y, r.Width, r.Height)
+    End Function
+
+    Public Function CvtStringToRectF(s As String, [default] As RectangleF) As RectangleF
+        Try
+            Dim parts() As String = SplitSmart4(s)
+            Dim x As Single = Single.Parse(parts(0), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Dim y As Single = Single.Parse(parts(1), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Dim w As Single = Single.Parse(parts(2), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Dim h As Single = Single.Parse(parts(3), NumberStyles.Float, CultureInfo.InvariantCulture)
+            Return New RectangleF(x, y, w, h)
+        Catch
+            Return [default]
+        End Try
+    End Function
+
+    '==========================================================
+    ' Kleine Helfer zum robusten Splitten (Semikolon bevorzugt;
+    ' Komma als Legacy-Fallback)
+    '==========================================================
+    Private Function SplitSmart2(s As String) As String()
+        If s Is Nothing Then Throw New ArgumentNullException(NameOf(s))
+        Dim parts As String()
+        If s.Contains(";"c) Then
+            parts = s.Split(";"c)
+        Else
+            parts = s.Split(","c)
+        End If
+        If parts.Length < 2 Then Throw New FormatException("Expected 2 parts.")
+        Return New String() {parts(0).Trim(), parts(1).Trim()}
+    End Function
+
+    Private Function SplitSmart4(s As String) As String()
+        If s Is Nothing Then Throw New ArgumentNullException(NameOf(s))
+        Dim parts As String()
+        If s.Contains(";"c) Then
+            parts = s.Split(";"c)
+        Else
+            parts = s.Split(","c)
+        End If
+        If parts.Length < 4 Then Throw New FormatException("Expected 4 parts.")
+        Return New String() {parts(0).Trim(), parts(1).Trim(), parts(2).Trim(), parts(3).Trim()}
+    End Function
 
 #End Region
 
@@ -746,34 +1102,6 @@ Public Class IniManager
 
 #End Region
 
-#Region "Hilfsfunktionen"
-
-    Private Function FindFolderLine(folder As String) As Integer
-        Dim search As String = "[" & folder & "]"
-        For i As Integer = 0 To lines.Count - 1
-            If lines(i).Equals(search, StringComparison.OrdinalIgnoreCase) Then
-                Return i
-            End If
-        Next
-        Return -1
-    End Function
-
-    Private Function FindKeyLine(folderAndKey As (folder As String, key As String)) As Integer
-        Dim folderLine As Integer = FindFolderLine(folderAndKey.folder)
-
-        If folderLine < 0 Then Return -1
-
-        For i As Integer = folderLine + 1 To lines.Count - 1
-            Dim l As String = lines(i)
-            If l.StartsWith("[") Then Return -1
-            If l.StartsWith(folderAndKey.key & "=", StringComparison.OrdinalIgnoreCase) Then
-                Return i
-            End If
-        Next
-        Return -1
-    End Function
-
-#End Region
 
 #Region "Pfade und Dateinamen"
 
@@ -913,7 +1241,7 @@ Public Class IniManager
             String.Empty,
             String.Empty,
             If(filename <> AppDataFileName.None, filename.ToString, String.Empty),
-            timestamp
+            timestamp, maxFiles
             )
 
     End Function
@@ -934,7 +1262,8 @@ Public Class IniManager
             If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
             String.Empty,
             If(filename <> AppDataFileName.None, filename.ToString, String.Empty),
-            timestamp
+            timestamp,
+            maxFiles
             )
 
     End Function
@@ -956,7 +1285,8 @@ Public Class IniManager
             If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
             If(subsubdir <> AppDataSubSubDir.None, subsubdir.ToString, String.Empty),
             If(filename <> AppDataFileName.None, filename.ToString, String.Empty),
-            timestamp
+            timestamp,
+            maxFiles
             )
 
     End Function

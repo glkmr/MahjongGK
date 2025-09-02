@@ -102,12 +102,76 @@ Namespace Spielfeld
                                 If .AnimShowAnimated Then
                                     PaintAnimatedStein(e, rectOutput, timeDifferenzFaktor, aktSteinInfo, New Triple(x, y, z))
                                 Else
-                                    Dim left As Integer = renderRectLeft + (steinWidthHalf * (x - 1) - (offset3DLeftJeEbene * z))
-                                    Dim top As Integer = renderRectTop + (steinHeightHalf * (y - 1) - (offset3DTopJeEbene * z))
+                                    Dim left As Integer = renderRectLeft + (steinWidthHalf * (x - 1) + offset3DLeftSumme - (offset3DLeftJeEbene * z)) - MJ_OFFSET3D_PADDING_LEFTRIGHT
+                                    Dim top As Integer = renderRectTop + (steinHeightHalf * (y - 1) + offset3DTopSumme - (offset3DTopJeEbene * z)) - MJ_OFFSET3D_PADDING_TOPBOTTOM
                                     ''Debug
                                     'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ aktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
                                     ''/Debug
                                     e.Graphics.DrawImage(BitmapContainer.GetBitmap(.SteinStatusUsed, .SteinIndex), left, top)
+
+                                    If INI.IfRunningInIDE_InsertStoneIndex Then
+
+                                        Dim dbg As String = String.Format("{0}-{1}-{2}-{3}", CType(.tmpDebug, PositionEnum), x, y, z)
+
+                                        Dim r As New RectangleF(CSng(left + steinWidth * 0.1), CSng(top + steinHeight * 0.02), CSng(steinWidth * 0.65), CSng(steinHeight * 0.85))
+
+                                        Using f As New Font("Consolas", 7.0F, FontStyle.Regular, GraphicsUnit.Point)
+                                            Using sf As New StringFormat(StringFormat.GenericTypographic)
+                                                sf.Alignment = StringAlignment.Center
+                                                sf.FormatFlags = StringFormatFlags.NoWrap
+                                                sf.LineAlignment = StringAlignment.Near     ' oben
+                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                sf.LineAlignment = StringAlignment.Far     ' unten
+                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+
+                                            End Using
+                                        End Using
+
+                                        ' 1) Rechts oben, ohne Abstand
+                                        Using f As New Font("Consolas", 7.0F, FontStyle.Regular, GraphicsUnit.Point)
+                                            Using sf As New StringFormat(StringFormat.GenericTypographic)
+                                                sf.Alignment = StringAlignment.Center
+                                                sf.LineAlignment = StringAlignment.Near     ' oben
+                                                sf.FormatFlags = StringFormatFlags.NoWrap
+                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                sf.LineAlignment = StringAlignment.Far      ' unten
+                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+                                            End Using
+
+                                            ' 2) Vertikal links (oben -> unten), höhenzentriert
+                                            Dim stLeft As Drawing2D.GraphicsState = e.Graphics.Save()
+                                            e.Graphics.TranslateTransform(r.Left, r.Top + r.Height / 2.0F)
+                                            e.Graphics.RotateTransform(-90.0F) ' oben -> unten am linken Rand
+
+                                            Using sfV As New StringFormat(StringFormat.GenericTypographic)
+                                                sfV.Alignment = StringAlignment.Center
+                                                sfV.LineAlignment = StringAlignment.Center
+                                                sfV.FormatFlags = StringFormatFlags.NoWrap
+                                                Dim lineH As Single = f.GetHeight(e.Graphics)
+                                                Dim layout As New RectangleF(-r.Height / 2.0F, -lineH / 2.0F, r.Height, lineH)
+                                                e.Graphics.DrawString(dbg, f, Brushes.Black, layout, sfV)
+                                            End Using
+                                            e.Graphics.Restore(stLeft)
+
+                                            ' 3) Vertikal rechts (oben -> unten), höhenzentriert
+                                            Dim stRight As Drawing2D.GraphicsState = e.Graphics.Save()
+                                            e.Graphics.TranslateTransform(r.Right, r.Top + r.Height / 2.0F)
+                                            e.Graphics.RotateTransform(90.0F) ' oben -> unten am rechten Rand
+
+                                            Using sfV As New StringFormat(StringFormat.GenericTypographic)
+                                                sfV.Alignment = StringAlignment.Center
+                                                sfV.LineAlignment = StringAlignment.Center
+                                                sfV.FormatFlags = StringFormatFlags.NoWrap
+                                                Dim lineH As Single = f.GetHeight(e.Graphics)
+                                                Dim layout As New RectangleF(-r.Height / 2.0F, -lineH / 2.0F, r.Height, lineH)
+                                                e.Graphics.DrawString(dbg, f, Brushes.Black, layout, sfV)
+                                            End Using
+                                            e.Graphics.Restore(stRight)
+                                        End Using
+
+
+                                    End If
+
                                 End If
                             End With
                         Next

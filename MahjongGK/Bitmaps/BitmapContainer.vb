@@ -35,7 +35,8 @@ Namespace Spielfeld
 
     Public Module BitmapContainer
 
-        Private _bitmapcontainer(9) As ImagesBase64XML
+        Private Const UBND_BITMAPCONTAINER As Integer = 11
+        Private ReadOnly _bitmapcontainer(UBND_BITMAPCONTAINER) As ImagesBase64XML
 
         Private _IsInit As Boolean
         Public ReadOnly Property IsInit As Boolean
@@ -59,6 +60,10 @@ Namespace Spielfeld
             Dim zLwPD As String = Path.Combine(zLwP, "MahjongImagesSrcBase64_00_Normal.xml")
             _bitmapcontainer(SteinStatus.Normal) = ImagesBase64XML.Load(zLwPD)
 
+            'Basieren auf dem Normalstein
+            _bitmapcontainer(SteinStatus.WerkstückEinfügeFehler) = ImagesBase64XML.Load(zLwPD)
+            _bitmapcontainer(SteinStatus.WerkstückZufallsgrafik) = ImagesBase64XML.Load(zLwPD)
+
             zLwPD = Path.Combine(zLwP, "MahjongImagesSrcBase64_01_Selected.xml")
             _bitmapcontainer(SteinStatus.Selected) = ImagesBase64XML.Load(zLwPD)
 
@@ -77,6 +82,8 @@ Namespace Spielfeld
             zLwPD = Path.Combine(zLwP, "MahjongImagesSrcBase64_06_MissingSecond.xml")
             _bitmapcontainer(SteinStatus.MissingSecond) = ImagesBase64XML.Load(zLwPD)
 
+
+
             CreateImages(steinWidth, steinHeight, highQuality)
 
             _IsInit = True
@@ -84,15 +91,16 @@ Namespace Spielfeld
         End Sub
 
         Public Sub CreateImages(steinWidth As Integer, steinHeight As Integer, highQuality As Boolean)
-            For idx As Integer = 0 To _bitmapcontainer.GetUpperBound(0)
+
+            For idxSteinStatus As Integer = 0 To _bitmapcontainer.GetUpperBound(0)
 
                 Dim createDummyBmps As Boolean = False
-                Select Case idx
+                Select Case idxSteinStatus
                     Case SteinStatus.Unsichtbar, SteinStatus.Reserve1, SteinStatus.Reserve2
-                        _bitmapcontainer(idx) = New ImagesBase64XML
+                        _bitmapcontainer(idxSteinStatus) = New ImagesBase64XML
                         createDummyBmps = True
                 End Select
-                _bitmapcontainer(idx).CreateImages(steinWidth, steinHeight, highQuality, idx, createDummyBmps)
+                _bitmapcontainer(idxSteinStatus).CreateImages(steinWidth, steinHeight, highQuality, idxSteinStatus, createDummyBmps)
             Next
         End Sub
 

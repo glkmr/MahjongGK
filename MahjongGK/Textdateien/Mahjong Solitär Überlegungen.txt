@@ -1,0 +1,31 @@
+﻿
+
+Steinverteilung im Original-Mahjong
+
+Ein Standard-Set (Mahjong-Solitär/„Shanghai“): hat 144 Steine.
+	Davon „Normale“ Steine: 34 Typen × 4 Kopien = 136 Steine
+	Sondergruppen: Blumen (4 einzelne) + Jahreszeiten (4 einzelne) = 8 (jeweils nur 1 Kopie)
+
+	Die normalen Steine sind:
+	Punkt1 Punkt2 Punkt3 Punkt4 Punkt5 Punkt6 Punkt7 Punkt8 Punkt9 
+	Bambus1 Bambus2 Bambus3 Bambus4 Bambus5 Bambus6 Bambus7 Bambus8 Bambus9 
+	Symbol1 Symbol2 Symbol3 Symbol4 Symbol5 Symbol6 Symbol7 Symbol8 Symbol9 
+	DrachenRot DrachenGrün DrachenWeiß 
+	WindOst WindSüd WindWest WindNord
+
+	Die Sondergruppen sind:
+	BlütePflaume BlüteOrchidee BlüteChrisantheme BlüteBambus 
+	JahrFrühling JahrSommer JahrHerbst JahrWinter
+
+
+Prozentuale Verteilung: Anteil Sondergruppen vs. Rest:
+
+Sondergruppen:									          8/144 ≈ 5.56 %
+Rest (alle anderen):						            136/144 ≈ 94,44 %
+Verhältnis										  Sonder : Rest = 1 : 17
+
+Eine Gruppe (Blumen oder Jahreszeiten):					  4/144 ≈ 2,78 %
+
+Ein einzelner Blumen-/Jahreszeiten-Stein:				  1/144 ≈ 0.69 %
+
+Ein einzelner „normaler“ Typ (z. B. Punkt 1): 4 Kopien ⇒ 4/144 ≈ 2,78 % 

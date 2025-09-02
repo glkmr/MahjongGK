@@ -21,6 +21,7 @@
 '
 '
 '
+
 Option Compare Text
 Option Explicit On
 Option Infer Off
@@ -29,61 +30,62 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-
-
-''' <summary>
-''' Klasse zum Kapseln von x, y und z-Koordinaten
-''' </summary>
+''' <summary>Klasse zum Kapseln von x, y und z-Koordinaten</summary>
+<DebuggerDisplay("{DebuggerView}")>
+<DebuggerStepThrough>
+<Serializable>
 Public Class Triple
 
-    'für Xml ist es wohl besser (warum?), die zu speichernden Daten stehen am Anfang
-    '
     Public Property x As Integer
     Public Property y As Integer
     Public Property z As Integer
+    Public Property Valide As ValidePlace
+    ' Hinweis: Wenn ToString vorhanden ist, sind <DebuggerDisplay("{DebuggerView}")>
+    ' und der Code hier nicht nötig.
+    ' nur für den Debugger – wird nicht serialisiert/angezeigt
+    <DebuggerBrowsable(DebuggerBrowsableState.Never)>
+    Private ReadOnly Property DebuggerView As String
+        Get
+            Return $"(X={x}, Y={y}, Z={z}, Valide={Valide})"
+        End Get
+    End Property
+
 
     Sub New()
-
     End Sub
 
     Sub New(x As Integer, y As Integer, z As Integer)
-        Me.x = x
-        Me.y = y
-        Me.z = z
+        Me.x = x : Me.y = y : Me.z = z
     End Sub
 
+    Sub New(x As Integer, y As Integer, z As Integer, Valide As ValidePlace)
+        Me.x = x : Me.y = y : Me.z = z : Me.Valide = Valide
+    End Sub
+
+    Sub New(tripl As Triple, Valide As ValidePlace)
+        Me.x = tripl.x : Me.y = tripl.y : Me.z = tripl.z : Me.Valide = Valide
+    End Sub
 
     Public ReadOnly Property DeepCopy As Triple
         Get
-            Return New Triple(x, y, z)
+            Return New Triple(x, y, z, Valide)
         End Get
     End Property
 
     Public Function Contains(x As Integer, y As Integer, z As Integer) As Boolean
         Return Me.x = x AndAlso Me.y = y AndAlso Me.z = z
     End Function
-    '
-    ''' <summary>
-    ''' Achtung
-    ''' </summary>
-    ''' <param name="arrFB"></param>
-    ''' <returns></returns>
-    Public Function IsInsideSpielfeldBounds(arrFB(,,) As Integer) As Boolean
 
+    Public Function IsInsideSpielfeldBounds(arrFB(,,) As Integer) As Boolean
         Return ((x >= 1 AndAlso x <= arrFB.GetUpperBound(0) - 1) AndAlso
                 (y >= 1 AndAlso y <= arrFB.GetUpperBound(1) - 1) AndAlso
-                (z >= 0 AndAlso z <= arrFB.GetUpperBound(2))
-                ) = True
-
+                (z >= 0 AndAlso z <= arrFB.GetUpperBound(2)))
     End Function
 
     Public Function IsInsideLBoundUBound(arrFB(,,) As Integer) As Boolean
-
         Return ((x >= 0 AndAlso x <= arrFB.GetUpperBound(0)) AndAlso
                 (y >= 0 AndAlso y <= arrFB.GetUpperBound(1)) AndAlso
-                (z >= 0 AndAlso z <= arrFB.GetUpperBound(2))
-                ) = True
-
+                (z >= 0 AndAlso z <= arrFB.GetUpperBound(2)))
     End Function
 
     Public Sub CopyToArrFBMain(arrFB(,,) As Integer, fb As Integer)
@@ -91,15 +93,10 @@ Public Class Triple
     End Sub
 
     Public Function IsEqual(triple As Triple) As Boolean
-        With triple
-            Return x = .x AndAlso y = .y AndAlso z = .z
-        End With
+        Return x = triple.x AndAlso y = triple.y AndAlso z = triple.z
     End Function
 
     Public Overrides Function ToString() As String
-
-        Return $"(X={x}, Y={y} ,Z={z})"
-
+        Return $"(X={x}, Y={y}, Z={z}, Valide={Valide})"
     End Function
-
 End Class

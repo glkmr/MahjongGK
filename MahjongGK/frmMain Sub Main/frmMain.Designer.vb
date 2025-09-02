@@ -25,8 +25,8 @@ Partial Class frmMain
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmMain))
         Me.TabControlMain = New System.Windows.Forms.TabControl()
         Me.TabPageSpielfeld = New System.Windows.Forms.TabPage()
-        Me.UCtlSpielfeldMain = New MahjongGK.UCtlSpielfeld()
         Me.TabPageEinstellungen = New System.Windows.Forms.TabPage()
+        Me.UCtlSpielfeldMain = New MahjongGK.UCtlSpielfeld()
         Me.UCtlEinstellungenMain = New MahjongGK.UctlEinstellungen()
         Me.TabControlMain.SuspendLayout()
         Me.TabPageSpielfeld.SuspendLayout()
@@ -52,8 +52,19 @@ Partial Class frmMain
         Me.TabPageSpielfeld.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPageSpielfeld.Size = New System.Drawing.Size(900, 465)
         Me.TabPageSpielfeld.TabIndex = 0
-        Me.TabPageSpielfeld.Text = "Spielfeld"
+        Me.TabPageSpielfeld.Text = "SpielsteinGenerator_zlv"
         Me.TabPageSpielfeld.UseVisualStyleBackColor = True
+        '
+        'TabPageEinstellungen
+        '
+        Me.TabPageEinstellungen.Controls.Add(Me.UCtlEinstellungenMain)
+        Me.TabPageEinstellungen.Location = New System.Drawing.Point(4, 22)
+        Me.TabPageEinstellungen.Name = "TabPageEinstellungen"
+        Me.TabPageEinstellungen.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPageEinstellungen.Size = New System.Drawing.Size(900, 465)
+        Me.TabPageEinstellungen.TabIndex = 1
+        Me.TabPageEinstellungen.Text = "Einstellungen"
+        Me.TabPageEinstellungen.UseVisualStyleBackColor = True
         '
         'UCtlSpielfeldMain
         '
@@ -63,23 +74,12 @@ Partial Class frmMain
         Me.UCtlSpielfeldMain.Size = New System.Drawing.Size(894, 459)
         Me.UCtlSpielfeldMain.TabIndex = 0
         '
-        'TabPageEinstellungen
-        '
-        Me.TabPageEinstellungen.Controls.Add(Me.UCtlEinstellungenMain)
-        Me.TabPageEinstellungen.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageEinstellungen.Name = "TabPageEinstellungen"
-        Me.TabPageEinstellungen.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPageEinstellungen.Size = New System.Drawing.Size(900, 443)
-        Me.TabPageEinstellungen.TabIndex = 1
-        Me.TabPageEinstellungen.Text = "Einstellungen"
-        Me.TabPageEinstellungen.UseVisualStyleBackColor = True
-        '
         'UCtlEinstellungenMain
         '
         Me.UCtlEinstellungenMain.Dock = System.Windows.Forms.DockStyle.Fill
         Me.UCtlEinstellungenMain.Location = New System.Drawing.Point(3, 3)
         Me.UCtlEinstellungenMain.Name = "UCtlEinstellungenMain"
-        Me.UCtlEinstellungenMain.Size = New System.Drawing.Size(894, 437)
+        Me.UCtlEinstellungenMain.Size = New System.Drawing.Size(894, 459)
         Me.UCtlEinstellungenMain.TabIndex = 0
         '
         'frmMain

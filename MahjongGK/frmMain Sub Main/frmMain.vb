@@ -87,7 +87,7 @@ Public Class frmMain
         'stellt ggf "[IDE]" der Titelzeile voran.
         Helper.IsRunningInIDE(Me)
 
-        Me.MinimumSize = Me.SizeFromClientSize(New Size(Spielfeld.MJ_SPIELFELD_MIN_WIDTH, Spielfeld.MJ_SPIELFELD_MIN_HEIGHT))
+        Me.MinimumSize = Me.SizeFromClientSize(New Size(MJ_SPIELFELD_MIN_WIDTH, MJ_SPIELFELD_MIN_HEIGHT))
         Me.AutoScaleMode = AutoScaleMode.Dpi
 
         'Die UserControls müssen in der Reihenfolge der Enumeration VisibleUserControl
@@ -122,6 +122,10 @@ Public Class frmMain
 
         'Spielfeld.TestDaten_StatischesSpielfeld_EineEbenen
 
+        If Debugger.IsAttached Then
+            Me.KeyPreview = True
+            DebugStep.Attach(Me)
+        End If
 
     End Sub
 

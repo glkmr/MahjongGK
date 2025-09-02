@@ -30,6 +30,7 @@ Option Strict On
 #Disable Warning IDE1006
 
 Imports System.Runtime.CompilerServices
+
 Namespace Spielfeld
     ''' <summary>
     ''' zeitkritische Methoden, die nur Zahlen manipulieren, ohne auf andere Daten zuzugreifen

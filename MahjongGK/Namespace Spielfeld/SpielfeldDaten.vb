@@ -94,6 +94,9 @@ Namespace Spielfeld
         Public offset3DLeftJeEbene As Integer
         Public offset3DTopJeEbene As Integer
 
+        Public offset3DLeftSumme As Integer
+        Public offset3DTopSumme As Integer
+
         Public Property WidthSpielfeld As Integer
         Public Property HeightSpielfeld As Integer
         Public Property LeftSpielfeld As Integer
@@ -103,8 +106,6 @@ Namespace Spielfeld
         '
         Public steinWidthLastCreated As Integer
         Public steinHeightLastCreated As Integer
-
-
 
     End Module
 
