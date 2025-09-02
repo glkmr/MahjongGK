@@ -163,7 +163,7 @@ Public Module SteinOverlays
     Public Sub InsertGrafik(bitmap As Bitmap, text As String)
 
 
-        Dim fnt As New Font("Tahoma", 30.0F * bitmap.Width / MJ_GRAFIK_ORG_WIDTH, FontStyle.Bold)
+        Dim fnt As New Font("Tahoma", 30.0F * bitmap.Width / 250, FontStyle.Bold)
 
         Using gfx As Graphics = Graphics.FromImage(bitmap)
 
@@ -171,8 +171,8 @@ Public Module SteinOverlays
 
             ' Maße
             Dim d As Single = 0.65F * Math.Min(bitmap.Width, bitmap.Height)
-            Dim centerX As Single = bitmap.Width / 2.0F * 0.9F
-            Dim centerY As Single = bitmap.Height / 2.0F * 0.9F
+            Dim centerX As Single = bitmap.Width / 2.0F * 0.85F
+            Dim centerY As Single = bitmap.Height / 2.0F * 0.91F
             Dim x As Single = centerX - d / 2.0F
             Dim y As Single = centerY - d / 2.0F
             Dim rect As New RectangleF(x, y, d, d)

@@ -40,7 +40,10 @@ Option Strict On
 Public Enum AppDataSubDir
     None
     INI
-    Steine
+    Steine198x252
+    Steine198x252Layout
+    Grafiken
+    Diverses
 End Enum
 ''' <summary>
 ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString\SubSubDefault.value.ToString"
@@ -50,6 +53,8 @@ Public Enum AppDataSubSubDir
     None
     letztesSpiel
     Layout
+    Diverses_ScreenShots
+    Grafiken_AppGrafiken16x16
 End Enum
 
 ''' <summary>
@@ -60,6 +65,7 @@ End Enum
 Public Enum AppDataFileName
     None
     Steininfos_xml
+    ScreeenShot_png
 End Enum
 
 Public Enum AppDataTimeStamp
@@ -68,6 +74,74 @@ Public Enum AppDataTimeStamp
     LookForLastTimeStamp
 End Enum
 
+''' <summary>
+''' In dieser Enum kann ein Pattern verschlüsselt werden.
+''' Es gilt: 
+''' _Q_ = ? (Question, Fragezeichen),
+''' _N_ = # (Number),
+''' _S_ = * (Stern, Star),
+''' _D_ = . (Dot, Punkt).
+''' _SD_ = *.
+''' _SDS_ = *.*
+''' Beispiel: Dateiname_S__D_ext --> Dateiname*.ext
+''' </summary>
+Public Enum AppDataFilePattern
+    None
+    Steininfos_xml
+End Enum
+
+''' <summary>
+''' Auf englisch, weil in der INI
+''' Die verwendeten Steinsätze
+''' </summary>
+Public Enum TileSetInUse
+    InternalSet
+End Enum
+'
+''' <summary>
+''' Für die Grafiken 16x16 im Programm.
+''' Der Default-Datensatz ist in Me.Ressources hinterlegt.
+''' </summary>
+Public Enum AppGrafikSatz
+    [Default] ' Ressourcen
+    Satz1     ' Beispiel; echte Namen später
+    Satz2
+    ' ...
+End Enum
+'
+''' <summary>
+''' 
+''' </summary>
+Public Enum AppGrafikName
+    ErrorGrafik ' Notnagel; MUSS in Ressourcen vorhanden sein
+    Editor
+    Redo
+    Restart
+    Screenshot
+    ShowSelectableChecked
+    ShowSelectableUnChecked
+    Spieler
+    Statistik
+    Tip
+    Tipps
+    Undo
+    Werkbank
+    Werkzeugkiste
+    WindsChecked
+    WindsUnChecked
+End Enum
+
+Public Enum IniEvents
+    None
+    OnChangeValue
+    OnWriteValue
+    OnUpdate
+End Enum
+
+
+''' <summary>
+''' Enumeration der Steine
+''' </summary>
 Public Enum SteinIndexEnum
     ErrorSy
     Punkt01
@@ -425,4 +499,11 @@ Public Enum ValidePlace
     '                 Stein, auf den gebaut werden könnte.
     Occupied         'Der Platz ist belegt
     OutsideBorder    'Spielfeldrand erreicht.
+End Enum
+
+Public Enum Rendering
+    None
+    Spielfeld
+    Editor
+    Werkbank
 End Enum

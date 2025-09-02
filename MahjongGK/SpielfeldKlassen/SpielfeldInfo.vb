@@ -71,7 +71,7 @@ Public Class SpielfeldInfo
         ReDim arrFB(xUBnd, yUBnd, zUBnd)
         SteinInfos = New List(Of SteinInfo)
 
-        WindsInOneClickGroup = INI.Regeln_WindsAreInOneClickGroup
+        WindsInOneClickGroup = INI.Spielbetrieb_WindsAreInOneClickGroup
 
     End Sub
 
@@ -519,9 +519,6 @@ Public Class SpielfeldInfo
                 For wbrX As Integer = 1 To .arrFB.GetUpperBound(0) - 1
                     For wbrY As Integer = 1 To .arrFB.GetUpperBound(1) - 1
                         If IsIndexQuadrant(.arrFB(wbrX, wbrY, wbrZ)) Then
-                            'Vereinfachter Zugriff auf den Feldbeschreiber.
-                            'Hier muss nicht vom Quadrant der zugehörige Feldbeschreiber
-                            'gefunden werden, sondern nur, ob das ein Index ist.
                             Dim idx As Integer = GetIndexStein(.arrFB(wbrX, wbrY, wbrZ))
                             Dim newPlace As New Triple(insertAt.x + wbrX - 1, insertAt.y + wbrY - 1, insertAt.z + wbrZ)
                             If IsFreePlace(newPlace) Then

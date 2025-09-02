@@ -54,8 +54,13 @@ Namespace Spielfeld
         ''' Wird aktSpielfeld = Nothing gesetzt, schaltet sich die Animation auch ab,
         ''' aber mit einer Fehlermeldung direkt auf dem Bildschirm
         ''' </summary>
-        Public Property aktSpielfeldInfo As SpielfeldInfo = Nothing
-        '
+        Public Property AktSpielfeldInfo As SpielfeldInfo = Nothing
+        Public Property PlayerSpielfeldInfo As SpielfeldInfo = Nothing
+        Public Property EditorSpielfeldInfo As SpielfeldInfo = Nothing
+        Public Property WerkbankSpielfeldInfo As SpielfeldInfo = Nothing
+
+        Public AktRendering As Rendering
+
 
         Public xMin As Integer = 1
         Public yMin As Integer = 1

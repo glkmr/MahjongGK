@@ -468,7 +468,7 @@ Public NotInheritable Class MessageBoxFormatiert
         ' Scrollbar-Policy bleibt:
         _rtb.ScrollBars = RichTextBoxScrollBars.Both
 
-        ' ERSETZT die bisherige manuelle Positionierung:
+
         LayoutControls()
     End Sub
 
@@ -477,7 +477,7 @@ Public NotInheritable Class MessageBoxFormatiert
         Dim y As Integer = PADDING
 
         Dim iconW As Integer = If(_iconBox.Image IsNot Nothing, ICON_SIZE, 0)
-        _iconBox.Location = New Point(x, y)
+        _iconBox.Location = New Point(5, 5)
 
         ' Header über die Breite (links neben dem Icon beginnen)
         Dim headerLeft As Integer = iconW + If(iconW > 0, GAP, 0)

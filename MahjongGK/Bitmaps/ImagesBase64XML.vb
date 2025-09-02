@@ -69,6 +69,26 @@ Namespace Spielfeld
             End Set
         End Property
 
+        ''Public ReadOnly Property BitmapWidth As Integer
+        ''    Get
+        ''        If IsNothing(_OriginalBitmaps(0)) Then
+        ''            Return -1
+        ''        Else
+        ''            Return _OriginalBitmaps(0).Width
+        ''        End If
+        ''    End Get
+        ''End Property
+        ''Public ReadOnly Property BitmapHeight As Integer
+        ''    Get
+        ''        If IsNothing(_OriginalBitmaps(0)) Then
+        ''            Return -1
+        ''        Else
+        ''            Return _OriginalBitmaps(0).Height
+        ''        End If
+        ''    End Get
+        ''End Property
+
+
         ''' <summary>
         ''' Skaliert alle Bilder auf eine neue Zielgröße.
         ''' Die Dummybitmaps werden nur während der Entwicklungszeit benötigt,
@@ -163,6 +183,17 @@ Namespace Spielfeld
             For idxStein As Integer = 0 To 42
 
                 Dim img As Bitmap = GetOriginalBitmap(idxStein)
+
+                'Hier ist die tiefst-mögliche Stelle im Programm zur Feststellung der
+                'Abmessung der Steine.
+                If idxStein = 1 AndAlso idxSteinStatus = 1 Then 'die Erste der normalen Grafiken
+                    '                                            (idxSteinStatus = 0 sind generierte Grafiken
+                    '                                            und idxStein = 0 ist die Fehlergrafik)
+                    INI.Rendering_OrgGrafikSizeWidth = img.Width
+                    INI.Rendering_OrgGrafikSizeHeight = img.Height
+                End If
+
+
                 If img IsNot Nothing Then
                     _ScaledBitmaps(idxStein)?.Dispose()
                     _ScaledBitmaps(idxStein) = ResizeBitmap(img, width, height, qualität)

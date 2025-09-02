@@ -40,7 +40,7 @@ Public Class SteinInfo
     Sub New(steinInfoIndex As Integer, steinIndex As SteinIndexEnum, pos3D As Triple, Optional tmpDebug As Integer = 0)
         Me.SteinInfoIndex = steinInfoIndex
         Me.SteinIndex = steinIndex
-        KlickGruppe = Spielfeld.GetSteinClickGruppe(steinIndex, INI.Regeln_WindsAreInOneClickGroup)
+        KlickGruppe = Spielfeld.GetSteinClickGruppe(steinIndex, INI.Spielbetrieb_WindsAreInOneClickGroup)
         SteinStatusIst = SteinStatus.Normal
         SteinStatusUsed = SteinStatus.Normal
         Postion3D = pos3D

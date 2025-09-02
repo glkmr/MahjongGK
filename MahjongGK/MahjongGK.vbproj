@@ -97,9 +97,31 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolEnumerationen.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbols.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongTileRenderer.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\IniFile.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\CreateIniFileTileStylePresetsDefault.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolFactory.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesMapping.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesPalettes.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileExport.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettings.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettingsWatcher.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyle.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyleTuner.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Bitmaps\SteinOverlays.vb" />
+    <Compile Include="Formulare\FrmIniEditor.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Hilfsmodule\GdiHelfer.vb" />
+    <Compile Include="INI\IniCommentReader.vb" />
+    <Compile Include="INI\IniCacheReset.vb" />
+    <Compile Include="INI\IniChangedEventArgs.vb" />
     <Compile Include="Namesspace Debughelfer\DebugBitmaps.vb" />
+    <Compile Include="Shared\AppGrafiken.vb" />
     <Compile Include="Shared\DebugStep.vb" />
     <Compile Include="Formulare\MessageBoxFormatiert.vb">
       <SubType>Form</SubType>
@@ -107,13 +129,19 @@
     <Compile Include="SpielfeldKlassen\Statistik.vb" />
     <Compile Include="INI\INI.vb" />
     <Compile Include="INI\IniManager.vb" />
-    <Compile Include="SpielfeldKlassen\SpielfeldInfoValues.vb" />
     <Compile Include="SpielfeldKlassen\SpielfeldSteineAustauscher.vb" />
     <Compile Include="SpielfeldKlassen\SpielsteinGeneratorValues.vb" />
+    <Compile Include="UserControls\Editor\UCtlEditor.Designer.vb">
+      <DependentUpon>UCtlEditor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Editor\UCtlEditor.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkbank.vb" />
+    <Compile Include="Werken %28Bausteine erzeugen%29\WerkbankHelfer.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkstück.vb" />
-    <Compile Include="Namespace Spielfeld\FrameSchedulerModul.vb" />
-    <Compile Include="Namespace Spielfeld\FrameSchedulerClass.vb" />
+    <Compile Include="Namespace Spielfeld\RenderingTaktgeberModul.vb" />
+    <Compile Include="Namespace Spielfeld\RenderingTaktgeberClass.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkstücke.vb" />
     <Compile Include="Shared\Konstanten.vb" />
     <Compile Include="SpielfeldKlassen\SteinInfo.vb" />
@@ -154,7 +182,7 @@
     <Compile Include="Persistierung\PersistHelper.vb" />
     <Compile Include="Namespace Spielfeld\DigitHelper.vb" />
     <Compile Include="Namespace Spielfeld\SpielfeldAnimator.vb" />
-    <Compile Include="Shared\Enumeratioen.vb" />
+    <Compile Include="Shared\Enumerationen.vb" />
     <Compile Include="Namespace Spielfeld\SpielfeldHelper.vb" />
     <Compile Include="Shared\Helper.vb" />
     <Compile Include="Namespace Spielfeld\SpielfeldRenderer.vb" />
@@ -178,6 +206,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Formulare\FrmIniEditor.resx">
+      <DependentUpon>FrmIniEditor.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMain Sub Main\frmMain.resx">
       <DependentUpon>frmMain.vb</DependentUpon>
       <SubType>Designer</SubType>
@@ -187,6 +218,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\Editor\UCtlEditor.resx">
+      <DependentUpon>UCtlEditor.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\Einstellungen\UctlEinstellungen.resx">
       <DependentUpon>UctlEinstellungen.vb</DependentUpon>
@@ -222,6 +256,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Bitmaps\MahjongSymbolFactory\liesmich.txt" />
     <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_00_Normal.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -246,7 +281,24 @@
     <Content Include="MahjongGK.ico" />
     <Content Include="Namespace Spielfeld\liesmich.txt" />
     <Content Include="Namespace Spielfeld\Nicht verwenderter Code.txt" />
-    <Content Include="Namespace Spielfeld\FrameSchedulerErläuterung.txt" />
+    <Content Include="Namespace Spielfeld\RenderingTaktgeber.txt" />
+    <Content Include="Namespace Spielfeld\_Variablennamen %28Auszug%29.txt" />
+    <None Include="Resources\Editor.png" />
+    <None Include="Resources\Error.png" />
+    <None Include="Resources\Redo.png" />
+    <None Include="Resources\Screenshot.png" />
+    <None Include="Resources\ShowSelectableChecked.png" />
+    <None Include="Resources\ShowSelectableUnChecked.png" />
+    <None Include="Resources\Spieler.png" />
+    <None Include="Resources\Tip.png" />
+    <None Include="Resources\Tipps.png" />
+    <None Include="Resources\Undo.png" />
+    <None Include="Resources\Werkbank.png" />
+    <None Include="Resources\Werkzeugkiste.png" />
+    <None Include="Resources\WindsChecked.png" />
+    <None Include="Resources\WindsUnChecked.png" />
+    <None Include="Resources\Restart.png" />
+    <None Include="Resources\Statistik.png" />
     <Content Include="Textdateien\Mahjong Solitär Überlegungen.txt" />
     <Content Include="Textdateien\Über ChatGPT.txt" />
   </ItemGroup>

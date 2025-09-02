@@ -40,6 +40,8 @@ Public Class IniManager
 
     Private ReadOnly _fileFullPath As String
     Private ReadOnly lines As New List(Of String)
+    Private _raiseIniEvents As IniEvents
+    Private _raiseIniEventsSic As IniEvents
     Public Property InitialisierungAktiv As Boolean
     ''' <summary>
     ''' Für Debugzwecke der Dateiname mit Extension der Ini.
@@ -47,15 +49,68 @@ Public Class IniManager
     ''' <returns></returns>
     Public ReadOnly Property Name As String
 
+    Public ReadOnly Property FileFullPath As String
+        Get
+            Return _fileFullPath
+        End Get
+    End Property
+
+    Public ReadOnly Property FileFullTmpPath As String
+        Get
+            Return _fileFullPath & ".tmp"
+        End Get
+    End Property
 
     Public Sub New(fileName_ext As String)
         _fileFullPath = AppDataFileINI(fileName_ext)
         Name = fileName_ext
         'In die Liste in INI eintragen
         AllIniManagers.Add(Me)
-        Load()
+        Load(loadTmpFile:=False)
     End Sub
     '
+
+#Region "Verschiedene öffentliche Member"
+
+    Public Sub LoadTmpFile()
+        Load(loadTmpFile:=True)
+    End Sub
+    Public Sub LoadOrgFile()
+        Load(loadTmpFile:=False)
+    End Sub
+
+    ''' <summary>
+    ''' Alle WriteValue-Überladungen geben True zurück, wenn sich der Wert gegenüber dem vorhandenem Wert 
+    ''' oder dem Default geändert, ausgenommen, dieses Flag steht auf True. Dann wird immer False
+    ''' zurückgegeben. Es wird beim Initialisieren beim allerertem Aufruf in INI automatisch gesetzt,
+    ''' d.h. bei Initialisieren kommen keine Events.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property RaiseIniEvents As IniEvents
+        Get
+            Return _raiseIniEvents
+        End Get
+        Set(value As IniEvents)
+            _raiseIniEvents = value
+        End Set
+    End Property
+
+    Public Sub BackupRaiseIniEvents()
+        _raiseIniEventsSic = _raiseIniEvents
+    End Sub
+
+    Public Sub RestoreRaiseIniEvents()
+        _raiseIniEvents = _raiseIniEventsSic
+    End Sub
+
+    Public ReadOnly Property FullPath As String
+        Get
+            Return _fileFullPath
+        End Get
+    End Property
+
+#End Region
+
 
 #Region "Write/Read"
 
@@ -79,9 +134,9 @@ Public Class IniManager
 
     '
     '--- String
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As String)
-        WriteValueToINI(folderAndKey, value)
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As String) As Boolean
+        Return WriteValueToINI(folderAndKey, value)
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As String, comment As String) As String
         Get
@@ -95,9 +150,9 @@ Public Class IniManager
     '
     'Sonderfall String als Path
     '--- String
-    Public Sub WritePath(folderAndKey As (folder As String, key As String), ByVal value As String)
-        WriteValueToINI(folderAndKey, CvtPathToRelPath(value))
-    End Sub
+    Public Function WritePath(folderAndKey As (folder As String, key As String), ByVal value As String) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtPathToRelPath(value))
+    End Function
 
     Public ReadOnly Property ReadPath(folderAndKey As (folder As String, key As String), [default] As String, comment As String) As String
         Get
@@ -111,9 +166,9 @@ Public Class IniManager
 
     '
     '--- Char
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Char)
-        WriteValueToINI(folderAndKey, value.ToString)
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Char) As Boolean
+        Return WriteValueToINI(folderAndKey, value.ToString)
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Char, comment As String) As Char
         Get
@@ -131,9 +186,9 @@ Public Class IniManager
     End Property
     '
     '--- Decimal
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Decimal)
-        WriteValueToINI(folderAndKey, CvtDecimalToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Decimal) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtDecimalToString(value))
+    End Function
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Decimal, comment As String) As Decimal
         Get
             Try
@@ -146,9 +201,9 @@ Public Class IniManager
     End Property
     '
     '--- Double
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Double)
-        WriteValueToINI(folderAndKey, CvtDoubleToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Double) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtDoubleToString(value))
+    End Function
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Double, comment As String) As Double
 
         Get
@@ -162,9 +217,9 @@ Public Class IniManager
     End Property
     '
     ' --- Single
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Single)
-        WriteValueToINI(folderAndKey, CvtSingleToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Single) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtSingleToString(value))
+    End Function
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Single, comment As String) As Single
         Get
             Try
@@ -177,9 +232,9 @@ Public Class IniManager
     End Property
     '
     'Long
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Long)
-        WriteValueToINI(folderAndKey, CvtLongToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Long) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtLongToString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Long, comment As String) As Long
         Get
@@ -193,9 +248,9 @@ Public Class IniManager
     End Property
     '
     ' Integer
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Integer)
-        WriteValueToINI(folderAndKey, CvtIntegerToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Integer) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtIntegerToString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Integer, comment As String) As Integer
         Get
@@ -209,9 +264,9 @@ Public Class IniManager
     End Property
     '
     '--- Boolean
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Boolean)
-        WriteValueToINI(folderAndKey, CvtBooleanToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Boolean) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtBooleanToString(value))
+    End Function
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Boolean, comment As String) As Boolean
         Get
             Try
@@ -225,9 +280,9 @@ Public Class IniManager
 
     '
     '--- Color
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Color)
-        WriteValueToINI(folderAndKey, CvtColorToHexString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Color) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtColorToHexString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Color, comment As String) As Color
         Get
@@ -240,9 +295,9 @@ Public Class IniManager
     End Property
     '
     '--- Date
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Date)
-        WriteValueToINI(folderAndKey, CvtDateToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Date) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtDateToString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Date, comment As String) As Date
         Get
@@ -255,9 +310,9 @@ Public Class IniManager
     End Property
     '
     '--- Point
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As Point)
-        WriteValueToINI(folderAndKey, CvtPointToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As Point) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtPointToString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Point, comment As String) As Point
         Get
@@ -270,9 +325,9 @@ Public Class IniManager
     End Property
     '
     '--- PointF
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As PointF)
-        WriteValueToINI(folderAndKey, CvtPointFToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As PointF) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtPointFToString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As PointF, comment As String) As PointF
         Get
@@ -285,9 +340,9 @@ Public Class IniManager
     End Property
     '
     '--- Size
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As Size)
-        WriteValueToINI(folderAndKey, CvtSizeToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As Size) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtSizeToString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Size, comment As String) As Size
         Get
@@ -300,9 +355,9 @@ Public Class IniManager
     End Property
     '
     '--- SizeF
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As SizeF)
-        WriteValueToINI(folderAndKey, CvtSizeFToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As SizeF) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtSizeFToString(value))
+    End Function
 
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As SizeF, comment As String) As SizeF
         Get
@@ -315,9 +370,9 @@ Public Class IniManager
     End Property
     '
     '--- Rectangle
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As Rectangle)
-        WriteValueToINI(folderAndKey, CvtRectToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As Rectangle) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtRectToString(value))
+    End Function
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Rectangle, comment As String) As Rectangle
         Get
             Try
@@ -329,9 +384,9 @@ Public Class IniManager
     End Property
     '
     '--- RectangleF
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As RectangleF)
-        WriteValueToINI(folderAndKey, CvtRectFToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As RectangleF) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtRectFToString(value))
+    End Function
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As RectangleF, comment As String) As RectangleF
         Get
             Try
@@ -343,9 +398,9 @@ Public Class IniManager
     End Property
     '
     '--- Font
-    Public Sub WriteValue(folderAndKey As (folder As String, key As String), value As Font)
-        WriteValueToINI(folderAndKey, CvtFontToString(value))
-    End Sub
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As Font) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtFontToString(value))
+    End Function
     Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Font, comment As String) As Font
         Get
             Try
@@ -412,7 +467,7 @@ Public Class IniManager
         Dim parts As String() = comment.Split(New String() {"~"}, StringSplitOptions.None)
         For Each p As String In parts
             ' Keine Farben/Meta – einfach als ";"-Kommentar schreiben
-            result.Add(";" & p)
+            result.Add(";" & p.TrimEnd)
         Next
         Return result
     End Function
@@ -485,6 +540,7 @@ Public Class IniManager
         Dim count As Integer = region.[end] - region.start + 1
         Dim equal As Boolean = (count = desired.Count)
         If equal Then
+            equal = True 'Default
             For i As Integer = 0 To count - 1
                 If Not String.Equals(lines(region.start + i), desired(i), StringComparison.Ordinal) Then
                     equal = False
@@ -543,10 +599,12 @@ Public Class IniManager
     '
     ''' <summary>
     ''' Schreibt einen Wert (fügt an, falls er nicht existiert). Beim Initialisierungslauf werden Kommentare gepflegt.
+    ''' Gibt True zurück, wenn sich er Wert geändert hat UND _DontRaiseChangedEvent auf False steht.
+    ''' Steht _DontRaiseChangedEvent auf True, wird immer False zurüchkegeben.
     ''' </summary>
-    Private Sub WriteValueToINI(folderAndKey As (folder As String, key As String),
+    Private Function WriteValueToINI(folderAndKey As (folder As String, key As String),
                                 value As String,
-                                Optional comment As String = Nothing)
+                                Optional comment As String = Nothing) As Boolean
 
         value = CvtStringValueToINIValue(value)
 
@@ -563,7 +621,7 @@ Public Class IniManager
             End If
             lines.Add($"{folderAndKey.key}={value}")
             MarkChanged()
-            Return
+            Return Announce(True)
         End If
 
         ' Schlüssel im Folder suchen
@@ -587,19 +645,29 @@ Public Class IniManager
                 End If
                 lines.Insert(insertAt, $"{folderAndKey.key}={value}")
                 MarkChanged()
-                Return
+                Return Announce(True)
             End If
 
             If l.StartsWith(folderAndKey.key & "=", StringComparison.OrdinalIgnoreCase) Then
                 ' Key existiert -> Wert ersetzen
-                lines(i) = $"{folderAndKey.key}={value}"
-                MarkChanged()
+                Dim newValue As String = $"{folderAndKey.key}={value}"
+                Dim changed As Boolean
+                'abr nur, wenn er sich geändert hat.
+                If String.Compare(lines(i), newValue, ignoreCase:=False) <> 0 Then
+                    lines(i) = newValue
+                    MarkChanged()
+                    changed = True
+                Else
+                    changed = False
+                End If
 
                 ' Kommentare ggf. pflegen
                 If InitialisierungAktiv Then
                     EnsureCommentForKey(comment, i, folderLine)
                 End If
-                Return
+
+                Return (changed)
+
             End If
         Next
 
@@ -613,8 +681,28 @@ Public Class IniManager
         End If
         lines.Add($"{folderAndKey.key}={value}")
         MarkChanged()
-    End Sub
 
+        Return Announce(True)
+
+    End Function
+
+    Private Function Announce(changed As Boolean) As Boolean
+
+        Select Case _raiseIniEvents
+            Case IniEvents.None
+                Return False
+            Case IniEvents.OnChangeValue
+                Return changed
+            Case IniEvents.OnUpdate
+                Return True
+            Case IniEvents.OnWriteValue
+                Return True
+            Case Else
+                Stop 'Programmierfehler
+                Return False
+        End Select
+
+    End Function
 
 #End Region
 
@@ -1138,17 +1226,20 @@ Public Class IniManager
     Private disposedValue As Boolean
 
     Public Function AppDataDirectory(Optional subdir As AppDataSubDir = AppDataSubDir.None,
-                                     Optional subsubdir As AppDataSubSubDir = AppDataSubSubDir.None) As String
+                                     Optional subsubdir As AppDataSubSubDir = AppDataSubSubDir.None,
+                                     Optional sub3Dir As String = Nothing) As String
 
         Return AppDataDirectory(
            If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
-           If(subsubdir <> AppDataSubSubDir.None, subsubdir.ToString, String.Empty)
+           AppDataSubSubDirToString(subsubdir),
+           sub3Dir
            )
 
     End Function
 
     Public Function AppDataDirectory(Optional subdir As String = Nothing,
-                                     Optional subsubdir As String = Nothing) As String
+                                     Optional subsubdir As String = Nothing,
+                                     Optional sub3Dir As String = Nothing) As String
 
         Dim aktpath As String = If(_useFallback.HasValue AndAlso _useFallback.Value,
                                    GetFallbackRoot(),
@@ -1160,7 +1251,9 @@ Public Class IniManager
         If Not String.IsNullOrEmpty(subsubdir) Then
             aktpath = Path.Combine(aktpath, subsubdir)
         End If
-
+        If Not String.IsNullOrEmpty(sub3Dir) Then
+            aktpath = Path.Combine(aktpath, sub3Dir)
+        End If
         'zum testen
         'aktpath = "C:\?:\invalid\path" 'wirft "ungültiger Pfadnahme" ,
 
@@ -1281,9 +1374,10 @@ Public Class IniManager
                                     Optional timestamp As AppDataTimeStamp = AppDataTimeStamp.None,
                                     Optional maxFiles As Integer = Integer.MaxValue) As String
 
+
         Return AppDataFullPath(
             If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
-            If(subsubdir <> AppDataSubSubDir.None, subsubdir.ToString, String.Empty),
+            AppDataSubSubDirToString(subsubdir),
             If(filename <> AppDataFileName.None, filename.ToString, String.Empty),
             timestamp,
             maxFiles
@@ -1582,6 +1676,30 @@ Public Class IniManager
         Return result
     End Function
 
+    Public Function AppDataSubSubDirToString(adss As AppDataSubSubDir) As String
+        Dim name As String = adss.ToString()
+
+        ' Sonderfall: None → leer
+        If adss = AppDataSubSubDir.None Then
+            Return String.Empty
+        End If
+
+        ' Alle AppDataSubDir-Namen durchgehen
+        For Each ads As AppDataSubDir In [Enum].GetValues(GetType(AppDataSubDir))
+            If ads = AppDataSubDir.None Then Continue For
+
+            Dim prefix As String = ads.ToString() & "_"
+            If name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) Then
+                ' Alles nach dem Unterstrich zurückgeben
+                Return name.Substring(prefix.Length)
+            End If
+        Next
+
+        ' Kein Präfix gefunden → vollständiger Name
+        Return name
+    End Function
+
+
 #End Region
 
 #Region "Load Save einschließlich der verzögerten Speicherung"
@@ -1668,11 +1786,38 @@ Public Class IniManager
         End If
     End Sub
 
+    Public Sub CopyOrgFileToTmpFile()
+
+        Dim lo As New List(Of String)
+        If File.Exists(_fileFullPath) Then
+            For Each l As String In File.ReadAllLines(_fileFullPath)
+                Dim trimmed As String = l.Trim()
+                If trimmed <> "" Then
+                    lo.Add(trimmed)
+                End If
+            Next
+        End If
+
+        Try
+            Using sw As New StreamWriter(_fileFullPath & ".tmp", False, Encoding.UTF8)
+                For Each l As String In lo
+                    sw.WriteLine(l)
+                Next
+            End Using
+            changed = False
+        Catch ex As Exception
+            'TODO Logging/Fehlermeldung 
+        End Try
+
+    End Sub
+
     ''' <summary>
-    ''' Speichert die Datei sofort.
+    ''' Speichert die Datei sofort, sofern Änderungen gemacht wurden
     ''' </summary>
-    Public Sub Save()
-        If Not changed Then Return
+    Public Sub Save(Optional alwaysSave As Boolean = False)
+        If Not changed And Not alwaysSave Then
+            Return
+        End If
 
         Try
             Using sw As New StreamWriter(_fileFullPath, False, Encoding.UTF8)
@@ -1689,9 +1834,11 @@ Public Class IniManager
     ''' <summary>
     ''' Lädt die Datei oder erzeugt neue.
     ''' </summary>
-    Private Sub Load()
+    Private Sub Load(loadTmpFile As Boolean)
         lines.Clear()
-        If File.Exists(_fileFullPath) Then
+
+
+        If File.Exists(_fileFullPath & If(loadTmpFile, ".tmp", String.Empty)) Then
             For Each l As String In File.ReadAllLines(_fileFullPath)
                 Dim trimmed As String = l.Trim()
                 If trimmed <> "" Then

@@ -255,7 +255,7 @@ Namespace Spielfeld
             Dim newBmp As New Bitmap(w, h)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
-                g.InterpolationMode = INI.Spielfeld_InterpolationMode
+                g.InterpolationMode = INI.Rendering_InterpolationMode
                 g.DrawImage(src, 0, 0, w, h)
             End Using
             Return newBmp
@@ -267,7 +267,7 @@ Namespace Spielfeld
             Dim newBmp As New Bitmap(w, h)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
-                g.InterpolationMode = INI.Spielfeld_InterpolationMode
+                g.InterpolationMode = INI.Rendering_InterpolationMode
                 g.TranslateTransform(w / 2.0F, h / 2.0F)
                 g.RotateTransform(angle)
                 g.ScaleTransform(scale, scale)
@@ -281,7 +281,7 @@ Namespace Spielfeld
             Dim newBmp As New Bitmap(src.Width, src.Height)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
-                g.InterpolationMode = INI.Spielfeld_InterpolationMode
+                g.InterpolationMode = INI.Rendering_InterpolationMode
                 g.DrawImage(src, offsetX, offsetY, src.Width, src.Height)
             End Using
             Return newBmp
@@ -293,7 +293,7 @@ Namespace Spielfeld
             Dim newBmp As New Bitmap(src.Width, src.Height)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
-                g.InterpolationMode = INI.Spielfeld_InterpolationMode
+                g.InterpolationMode = INI.Rendering_InterpolationMode
                 Dim x As Integer = (src.Width - w) \ 2 + offsetX
                 Dim y As Integer = (src.Height - h) \ 2 + offsetY
                 g.DrawImage(src, x, y, w, h)
@@ -569,7 +569,7 @@ Namespace Spielfeld
             Dim oldInterp As InterpolationMode = g.InterpolationMode
             Dim oldPixel As PixelOffsetMode = g.PixelOffsetMode
             g.SmoothingMode = SmoothingMode.HighQuality
-            g.InterpolationMode = INI.Spielfeld_InterpolationMode
+            g.InterpolationMode = INI.Rendering_InterpolationMode
             g.PixelOffsetMode = PixelOffsetMode.Half
 
             ' Transform: Mittelpunkt → Rotation → Skalierung → Bild links/oben auf (-w/2, -h/2)

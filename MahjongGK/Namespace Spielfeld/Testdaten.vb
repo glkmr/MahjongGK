@@ -82,18 +82,23 @@ Namespace Spielfeld
             '   DebugShowArrFBMain(arrFBMain, 0)
 
         End Sub
-        Public Sub TestDaten_Spielfeld_Variablel_zum_Debuggen()
+        Public Sub TestDaten_Spielfeld_Methodenaufruf_zum_Debuggen()
 
-            Dim newSpielfeldInfo As New SpielfeldInfo(New Triple(30, 10, 10))
+            Dim newSpielfeld As New SpielfeldInfo(New Triple(10, 10, 10))
+            Dim newWerkbank As New SpielfeldInfo(New Triple(10, 10, 10))
 
-            Spielfeld.aktSpielfeldInfo = newSpielfeldInfo
-            Spielfeld.FrameSchedulerModul.PaintSpielfeld_AktPermission = True
+            Spielfeld.PlayerSpielfeldInfo = newSpielfeld
+            Spielfeld.WerkbankSpielfeldInfo = newWerkbank
+            Spielfeld.AktRendering = Rendering.Spielfeld
+            ' Das Polling läuft bereits Spielfeld.TaktgeberModul.PaintSpielfeld_ReInitialisierung()
 
-            Dim wbs As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(30, 10, 10))
+            Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(10, 10, 10), demoMode:=True) ', True, True)
+            'Dim wbs As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(5, 5, 25))
+            Dim wbsWB As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(10, 10, 10), True, True, demoMode:=True)
 
-            newSpielfeldInfo.AddWerkstückToSpielfeld(wbs, New Triple(1, 1, 0))
+            newSpielfeld.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
 
-            'newSpielfeldInfo.AddWerkstückToSpielfeld(wbs, New Triple(15, 5, 0))
+            newWerkbank.AddWerkstückToSpielfeld(wbsWB, New Triple(1, 1, 0))
             'With newSpielfeldInfo
 
             '    Dim tplr As New Triple

@@ -37,14 +37,20 @@ Namespace Spielfeld
     ''' </summary>
     Module SpielfeldRenderer
 
-        'Hinweis: Die Daten, auf die hier ohne Deklaration zugegriffen wird, stehen
-        'im Modul "SpielfeldDaten"
+        'Hinweis: Die Daten, auf die hier ohne Deklaration zugegriffen wird, 
+        'stehen im Modul "SpielfeldDaten"
 
-        Public Sub DoPaintSpielfeld_Paint(e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+        Public Sub DoPaintSpielfeld_Paint(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, clear As Boolean)
+
+            If AktRendering = Rendering.None OrElse clear OrElse IsNothing(AktSpielfeldInfo) OrElse IsNothing(AktSpielfeldInfo.SteinInfos) OrElse AktSpielfeldInfo.SteinInfos.Count = 0 Then
+                gfx.Clear(INI.Spielfeld_BackgroundColor)
+                Exit Sub
+            End If
 
             If INI.Spielfeld_DrawBackgroundColor Then
-                e.Graphics.Clear(INI.Spielfeld_BackgroundColor)
+                gfx.Clear(INI.Spielfeld_BackgroundColor)
             End If
+
 
             If INI.Spielfeld_DrawFraming Then
                 Dim shrink As Single = INI.Spielfeld_FramingThickness / 2.0F
@@ -56,23 +62,23 @@ Namespace Spielfeld
                 Dim shrinkRect As New RectangleF(rectOutput.X + shrinkLeft, rectOutput.Y + shrinkTop, rectOutput.Width + shrinkRight, rectOutput.Height + shrinkBottom)
 
                 Using pen As New Pen(INI.Spielfeld_FramingColor, INI.Spielfeld_FramingThickness)
-                    e.Graphics.DrawRectangle(pen, shrinkRect.X, shrinkRect.Y, shrinkRect.Width, shrinkRect.Height)
+                    gfx.DrawRectangle(pen, shrinkRect.X, shrinkRect.Y, shrinkRect.Width, shrinkRect.Height)
                 End Using
             End If
 
             If INI.Spielfeld_DrawRenderRect Then
                 Using pen As New Pen(INI.Spielfeld_RenderRectColor)
-                    e.Graphics.DrawRectangle(pen, renderRect)
+                    gfx.DrawRectangle(pen, renderRect)
                 End Using
             End If
 
             Dim aktSteinInfo As SteinInfo
 
-            Dim toggleVergleichsflag As Boolean = aktSpielfeldInfo.GetFirstToggleFlagValue
+            Dim toggleVergleichsflag As Boolean = AktSpielfeldInfo.GetFirstToggleFlagValue
 
             'Die Vaiable, auf die hier zugegriffen wird, und die nicht hier
             'deklariert sind, stehen alle im Modul SpielfeldDaten.
-            With aktSpielfeldInfo
+            With AktSpielfeldInfo
 
                 'Dim debugInfo As String = String.Empty
 
@@ -100,14 +106,14 @@ Namespace Spielfeld
 
                             With aktSteinInfo
                                 If .AnimShowAnimated Then
-                                    PaintAnimatedStein(e, rectOutput, timeDifferenzFaktor, aktSteinInfo, New Triple(x, y, z))
+                                    PaintAnimatedStein(gfx, rectOutput, timeDifferenzFaktor, aktSteinInfo, New Triple(x, y, z))
                                 Else
-                                    Dim left As Integer = renderRectLeft + (steinWidthHalf * (x - 1) + offset3DLeftSumme - (offset3DLeftJeEbene * z)) - MJ_OFFSET3D_PADDING_LEFTRIGHT
-                                    Dim top As Integer = renderRectTop + (steinHeightHalf * (y - 1) + offset3DTopSumme - (offset3DTopJeEbene * z)) - MJ_OFFSET3D_PADDING_TOPBOTTOM
+                                    Dim left As Integer = renderRectLeft + (steinWidthHalf * (x - 1) + offset3DLeftSumme - (offset3DLeftJeEbene * z)) '- INI.Rendering_RectOutputPaddingLeft
+                                    Dim top As Integer = renderRectTop + (steinHeightHalf * (y - 1) + offset3DTopSumme - (offset3DTopJeEbene * z)) '- INI.Rendering_RectOutputPaddingTop
                                     ''Debug
                                     'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ aktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
                                     ''/Debug
-                                    e.Graphics.DrawImage(BitmapContainer.GetBitmap(.SteinStatusUsed, .SteinIndex), left, top)
+                                    gfx.DrawImage(BitmapContainer.GetBitmap(.SteinStatusUsed, .SteinIndex), left, top)
 
                                     If INI.IfRunningInIDE_InsertStoneIndex Then
 
@@ -120,9 +126,9 @@ Namespace Spielfeld
                                                 sf.Alignment = StringAlignment.Center
                                                 sf.FormatFlags = StringFormatFlags.NoWrap
                                                 sf.LineAlignment = StringAlignment.Near     ' oben
-                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                gfx.DrawString(dbg, f, Brushes.Black, r, sf)
                                                 sf.LineAlignment = StringAlignment.Far     ' unten
-                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                gfx.DrawString(dbg, f, Brushes.Black, r, sf)
 
                                             End Using
                                         End Using
@@ -133,40 +139,40 @@ Namespace Spielfeld
                                                 sf.Alignment = StringAlignment.Center
                                                 sf.LineAlignment = StringAlignment.Near     ' oben
                                                 sf.FormatFlags = StringFormatFlags.NoWrap
-                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                gfx.DrawString(dbg, f, Brushes.Black, r, sf)
                                                 sf.LineAlignment = StringAlignment.Far      ' unten
-                                                e.Graphics.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                gfx.DrawString(dbg, f, Brushes.Black, r, sf)
                                             End Using
 
                                             ' 2) Vertikal links (oben -> unten), höhenzentriert
-                                            Dim stLeft As Drawing2D.GraphicsState = e.Graphics.Save()
-                                            e.Graphics.TranslateTransform(r.Left, r.Top + r.Height / 2.0F)
-                                            e.Graphics.RotateTransform(-90.0F) ' oben -> unten am linken Rand
+                                            Dim stLeft As Drawing2D.GraphicsState = gfx.Save()
+                                            gfx.TranslateTransform(r.Left, r.Top + r.Height / 2.0F)
+                                            gfx.RotateTransform(-90.0F) ' oben -> unten am linken Rand
 
                                             Using sfV As New StringFormat(StringFormat.GenericTypographic)
                                                 sfV.Alignment = StringAlignment.Center
                                                 sfV.LineAlignment = StringAlignment.Center
                                                 sfV.FormatFlags = StringFormatFlags.NoWrap
-                                                Dim lineH As Single = f.GetHeight(e.Graphics)
+                                                Dim lineH As Single = f.GetHeight(gfx)
                                                 Dim layout As New RectangleF(-r.Height / 2.0F, -lineH / 2.0F, r.Height, lineH)
-                                                e.Graphics.DrawString(dbg, f, Brushes.Black, layout, sfV)
+                                                gfx.DrawString(dbg, f, Brushes.Black, layout, sfV)
                                             End Using
-                                            e.Graphics.Restore(stLeft)
+                                            gfx.Restore(stLeft)
 
                                             ' 3) Vertikal rechts (oben -> unten), höhenzentriert
-                                            Dim stRight As Drawing2D.GraphicsState = e.Graphics.Save()
-                                            e.Graphics.TranslateTransform(r.Right, r.Top + r.Height / 2.0F)
-                                            e.Graphics.RotateTransform(90.0F) ' oben -> unten am rechten Rand
+                                            Dim stRight As Drawing2D.GraphicsState = gfx.Save()
+                                            gfx.TranslateTransform(r.Right, r.Top + r.Height / 2.0F)
+                                            gfx.RotateTransform(90.0F) ' oben -> unten am rechten Rand
 
                                             Using sfV As New StringFormat(StringFormat.GenericTypographic)
                                                 sfV.Alignment = StringAlignment.Center
                                                 sfV.LineAlignment = StringAlignment.Center
                                                 sfV.FormatFlags = StringFormatFlags.NoWrap
-                                                Dim lineH As Single = f.GetHeight(e.Graphics)
+                                                Dim lineH As Single = f.GetHeight(gfx)
                                                 Dim layout As New RectangleF(-r.Height / 2.0F, -lineH / 2.0F, r.Height, lineH)
-                                                e.Graphics.DrawString(dbg, f, Brushes.Black, layout, sfV)
+                                                gfx.DrawString(dbg, f, Brushes.Black, layout, sfV)
                                             End Using
-                                            e.Graphics.Restore(stRight)
+                                            gfx.Restore(stRight)
                                         End Using
 
 
@@ -181,7 +187,7 @@ Namespace Spielfeld
             End With
         End Sub
 
-        Private Sub PaintAnimatedStein(e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double, aktSteinInfo As SteinInfo, pos3D As Triple)
+        Private Sub PaintAnimatedStein(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, aktSteinInfo As SteinInfo, pos3D As Triple)
 
             Dim left As Integer = renderRectLeft + (steinWidthHalf * pos3D.x) - (offset3DLeftJeEbene * pos3D.z)
             Dim top As Integer = renderRectTop + (steinHeightHalf * pos3D.y) - (offset3DTopJeEbene * pos3D.z)

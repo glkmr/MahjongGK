@@ -279,7 +279,7 @@ Namespace Spielfeld
         ''' <param name="index"></param>
         ''' <returns></returns>
         Public Function GetSteinClickGruppe(index As SteinIndexEnum) As Integer
-            If INI.Regeln_WindsAreInOneClickGroup Then
+            If INI.Spielbetrieb_WindsAreInOneClickGroup Then
                 Return GruppeLookupVereinfacht(index)
             Else
                 Return GruppeLookupNormal(index)

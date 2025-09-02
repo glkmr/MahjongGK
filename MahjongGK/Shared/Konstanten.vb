@@ -51,9 +51,9 @@ Public Module Konstanten
     'verdauen kann, ist wieder eine andere Frage.
 
     'Steine nebeneinander
-    Public Const MJ_STEINE_SIDEBYSIDE_XMAX As Integer = 75
-    Public Const MJ_STEINE_OVERANOTHER_YMAX As Integer = 25
-    Public Const MJ_STEINE_LAYER_ZMAX As Integer = 25
+    Public Const MJ_STEINE_SIDEBYSIDE_XMAX As Integer = 60
+    Public Const MJ_STEINE_OVERANOTHER_YMAX As Integer = 20
+    Public Const MJ_STEINE_LAYER_ZMAX As Integer = 10
 
     ''' <summary>
     ''' Theoretischer Wert zur Begrenzung der maximal erzeugten Steine.
@@ -94,19 +94,15 @@ Public Module Konstanten
 
     '
     '
-    Public Const MJ_GRAFIK_ORG_WIDTH As Integer = 198
-    Public Const MJ_GRAFIK_ORG_HEIGHT As Integer = 252
     '
-    '
-    Public Const MJ_GRAFIK_MAX_WIDTH As Integer = 198
-    Public Const MJ_GRAFIK_MAX_HEIGHT As Integer = 252
+    Public Const MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT As Integer = 600
 
     'Das sind "Notbremswerte", für den Spielbetrieb unbrauchbar klein.
-    Public Const MJ_GRAFIK_MIN_WIDTH As Integer = 10
-    Public Const MJ_GRAFIK_MIN_HEIGHT As Integer = 12
+    Public Const MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT As Integer = 6
+    Public Const MJ_GRAFIK_STEIN_MIN_WIDTH_OR_HEIGHT As Integer = 6
 
-    Public Const MJ_GRAFIK_FAKTOR_H_TO_W As Double = MJ_GRAFIK_ORG_WIDTH / MJ_GRAFIK_ORG_HEIGHT
-    Public Const MJ_GRAFIK_FAKTOR_W_TO_H As Double = MJ_GRAFIK_ORG_HEIGHT / MJ_GRAFIK_ORG_WIDTH
+    'Public Const MJ_GRAFIK_FAKTOR_H_TO_W As Double = MJ_GRAFIK_ORG_WIDTH / MJ_GRAFIK_ORG_HEIGHT
+    'Public Const MJ_GRAFIK_FAKTOR_W_TO_H As Double = MJ_GRAFIK_ORG_HEIGHT / MJ_GRAFIK_ORG_WIDTH
 
     Public Const MJ_MARGIN_ABSOLUT_LEFT As Integer = 10 'geradzahlige Werte nehmen
     Public Const MJ_MARGIN_ABSOLUT_TOP As Integer = 10  'für alle 4
@@ -122,17 +118,17 @@ Public Module Konstanten
 
     Public Const MJ_COLOR_BG_DEFAULT As Integer = &HFFD0D0D0 'helleres Grau
 
-    'Das ist die Verschiebung je Ebene der Steine bei maximaler Steingröße
-    Public Const MJ_OFFSET3D_MAX_LEFT As Double = 17
-    Public Const MJ_OFFSET3D_MAX_TOP As Double = 17 ' (MJ_OFFSET3D_MAX_LEFT * MJ_GRAFIK_ORG_HEIGHT) / MJ_GRAFIK_ORG_WIDTH
-    Public Const MJ_OFFSET3D_MIN_LEFT As Double = 1
-    Public Const MJ_OFFSET3D_MIN_TOP As Double = 1
+    ''Das ist die Verschiebung je Ebene der Steine bei maximaler Steingröße
+    'Public Const MJ_OFFSET3D_MAX_LEFT As Double = 3
+    'Public Const MJ_OFFSET3D_MAX_TOP As Double = 3
+    'Public Const MJ_OFFSET3D_MIN_LEFT As Double = 1
+    'Public Const MJ_OFFSET3D_MIN_TOP As Double = 1
 
-    Public Const MJ_OFFSET3D_PADDING_LEFTRIGHT As Integer = 10
-    Public Const MJ_OFFSET3D_PADDING_TOPBOTTOM As Integer = 10
+    'Public Const MJ_OFFSET3D_PADDING_LEFTRIGHT As Integer = 10
+    'Public Const MJ_OFFSET3D_PADDING_TOPBOTTOM As Integer = 10
 
-    Public Const MJ_OFFSET3DFAKTOR_MAX_LEFT As Double = MJ_OFFSET3D_MAX_LEFT / MJ_GRAFIK_ORG_WIDTH
-    Public Const MJ_OFFSET3DFAKTOR_MAX_TOP As Double = MJ_OFFSET3D_MAX_TOP / MJ_GRAFIK_ORG_HEIGHT
+    'Public Const MJ_OFFSET3DFAKTOR_MAX_LEFT As Double = MJ_OFFSET3D_MAX_LEFT / MJ_GRAFIK_ORG_WIDTH
+    'Public Const MJ_OFFSET3DFAKTOR_MAX_TOP As Double = MJ_OFFSET3D_MAX_TOP / MJ_GRAFIK_ORG_HEIGHT
 
 
 
@@ -230,16 +226,6 @@ Public Module Konstanten
         {"MJ_STEIN_VERTEILUNG_FAKTOR_152_NORMAL", MJ_STEIN_VERTEILUNG_FAKTOR_152_NORMAL},
         {"MJ_STEIN_VERTEILUNG_FAKTOR_152_SONDER", MJ_STEIN_VERTEILUNG_FAKTOR_152_SONDER},
                                                                                          _
-        {"MJ_GRAFIK_ORG_WIDTH", MJ_GRAFIK_ORG_WIDTH},
-        {"MJ_GRAFIK_ORG_HEIGHT", MJ_GRAFIK_ORG_HEIGHT},
-        {"MJ_GRAFIK_MAX_WIDTH", MJ_GRAFIK_MAX_WIDTH},
-        {"MJ_GRAFIK_MAX_HEIGHT", MJ_GRAFIK_MAX_HEIGHT},
-        {"MJ_GRAFIK_MIN_WIDTH", MJ_GRAFIK_MIN_WIDTH},
-        {"MJ_GRAFIK_MIN_HEIGHT", MJ_GRAFIK_MIN_HEIGHT},
-                                                       _
-        {"MJ_GRAFIK_FAKTOR_H_TO_W", MJ_GRAFIK_FAKTOR_H_TO_W},
-        {"MJ_GRAFIK_FAKTOR_W_TO_H", MJ_GRAFIK_FAKTOR_W_TO_H},
-                                                             _
         {"MJ_MARGIN_ABSOLUT_LEFT", MJ_MARGIN_ABSOLUT_LEFT},
         {"MJ_MARGIN_ABSOLUT_TOP", MJ_MARGIN_ABSOLUT_TOP},
         {"MJ_MARGIN_ABSOLUT_RIGHT", MJ_MARGIN_ABSOLUT_RIGHT},
@@ -250,15 +236,7 @@ Public Module Konstanten
         {"MJ_MARGIN_ABSOLUT_RIGHT_HALF", MJ_MARGIN_ABSOLUT_RIGHT_HALF},
         {"MJ_MARGIN_ABSOLUT_BOTTOM_HALF", MJ_MARGIN_ABSOLUT_BOTTOM_HALF},
                                                                          _
-        {"MJ_COLOR_BG_DEFAULT", MJ_COLOR_BG_DEFAULT},
-                                                     _
-        {"MJ_OFFSET3D_MAX_LEFT", MJ_OFFSET3D_MAX_LEFT},
-        {"MJ_OFFSET3D_MAX_TOP", MJ_OFFSET3D_MAX_TOP},
-        {"MJ_OFFSET3D_MIN_LEFT", MJ_OFFSET3D_MIN_LEFT},
-        {"MJ_OFFSET3D_MIN_TOP", MJ_OFFSET3D_MIN_TOP},
-                                                     _
-        {"MJ_OFFSET3DFAKTOR_MAX_LEFT", MJ_OFFSET3DFAKTOR_MAX_LEFT},
-        {"MJ_OFFSET3DFAKTOR_MAX_TOP", MJ_OFFSET3DFAKTOR_MAX_TOP}
+        {"MJ_COLOR_BG_DEFAULT", MJ_COLOR_BG_DEFAULT}
     }
 
 

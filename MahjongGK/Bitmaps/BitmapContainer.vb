@@ -48,9 +48,9 @@ Namespace Spielfeld
 
         Public Sub ChangeImagesSize(steinWidth As Integer, steinHeight As Integer)
             If BitmapContainer.IsInit Then
-                BitmapContainer.CreateImages(steinWidth, steinHeight, INI.Spielfeld_BitmapHighQuality)
+                BitmapContainer.CreateImages(steinWidth, steinHeight, INI.Rendering_BitmapHighQuality)
             Else
-                BitmapContainer.Initialisierung(steinWidth, steinHeight, INI.Spielfeld_BitmapHighQuality)
+                BitmapContainer.Initialisierung(steinWidth, steinHeight, INI.Rendering_BitmapHighQuality)
             End If
         End Sub
 
@@ -59,6 +59,7 @@ Namespace Spielfeld
             Dim zLwP As String = Path.Combine(Application.StartupPath, "Bitmaps", "XML-Container")
             Dim zLwPD As String = Path.Combine(zLwP, "MahjongImagesSrcBase64_00_Normal.xml")
             _bitmapcontainer(SteinStatus.Normal) = ImagesBase64XML.Load(zLwPD)
+
 
             'Basieren auf dem Normalstein
             _bitmapcontainer(SteinStatus.WerkstückEinfügeFehler) = ImagesBase64XML.Load(zLwPD)

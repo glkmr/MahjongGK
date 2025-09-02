@@ -24,13 +24,11 @@ Option Strict On
 '###########################################################################
 '
 '
-
-
-
 #Disable Warning IDE0079
 #Disable Warning IDE1006
-
+'
 Namespace Umfeld
+    '
     ''' <summary>
     ''' Hier stehen Basisbausteine, wie Linie, Diagonale, Pyramiden oder ähnliches. 
     ''' </summary>
@@ -80,7 +78,7 @@ Namespace Umfeld
         '           SpielfeldKoordinaten und die Unterscheiden sich erheblich,
         '           weil jeder Stein 2 mal 2 Felder belegt.
         '
-        Public Function Werkstück_Grundgerüst(bausteinSize As Triple) As Werkstück
+        Public Function Werkstück_Grundgerüst(bausteinSize As Triple, demoMode As Boolean) As Werkstück
 
             Dim wb As New Werkbank(bausteinSize)
 
@@ -101,11 +99,11 @@ Namespace Umfeld
 
             Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
-            Return wb.ResultAsWerkstück
+            Return wb.ResultAsWerkstück(demoMode)
 
         End Function
 
-        Public Function Werkstück_Rechteck(bausteinSize As Triple) As Werkstück
+        Public Function Werkstück_Rechteck(bausteinSize As Triple, demoMode As Boolean) As Werkstück
 
             Dim wb As New Werkbank(bausteinSize)
 
@@ -125,18 +123,21 @@ Namespace Umfeld
 
             Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
-            Return wb.ResultAsWerkstück
+            Return wb.ResultAsWerkstück(demoMode)
 
         End Function
 
-        Public Function Baustein_PyramideStumpf(bausteinSize As Triple) As Werkstück
+        Public Function Werkstück_Pyramide(bausteinSize As Triple, halfStepX As Boolean, halfStepY As Boolean, demoMode As Boolean) As Werkstück
 
             Dim wb As New Werkbank(bausteinSize)
 
+            Dim mulX As Integer = If(halfStepX, 1, 2)
+            Dim mulY As Integer = If(halfStepY, 1, 2)
+
             With wb
                 For idxZ As Integer = .zMin To .zMax
-                    For idxX As Integer = .xMin + idxZ To .xMax - idxZ Step 2
-                        For idxY As Integer = .yMin + idxZ To .yMax - idxZ Step 2
+                    For idxX As Integer = .xMin + idxZ * mulX To .xMax - idxZ * mulX Step 2
+                        For idxY As Integer = .yMin + idxZ * mulY To .yMax - idxZ * mulY Step 2
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
                             If tplAnswer.Valide = ValidePlace.Yes Then
@@ -149,23 +150,46 @@ Namespace Umfeld
 
             Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
-            Return wb.ResultAsWerkstück
+            Return wb.ResultAsWerkstück(demoMode)
 
         End Function
 
-        Public Function Baustein_PyramideSpitz(bausteinSize As Triple) As Werkstück
+        Public Function Werkstück_Ellipse(bausteinSize As Triple, demoMode As Boolean) As Werkstück
 
             Dim wb As New Werkbank(bausteinSize)
 
+            Dim xFrom As Integer
+            Dim xTo As Integer
+            Dim yFrom As Integer
+            Dim yTo As Integer
+
             With wb
+                .xMax += 1
+                .yMax += 1
+
                 For idxZ As Integer = .zMin To .zMax
-                    Dim offset As Integer = If(idxZ = 0, 0, 1)
-                    For idxX As Integer = .xMin + offset To .xMax - offset Step 2
-                        For idxY As Integer = .yMin + offset To .yMax - offset Step 2
-                            Dim tplQuestion As New Triple(idxX, idxY, idxZ)
-                            Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
-                            If tplAnswer.Valide = ValidePlace.Yes Then
-                                wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), tplAnswer)
+
+                    Dim offset As Integer = idxZ ' If (idxZ = 0, 0, 1) Then
+
+                    xFrom = .xMin + offset
+                    xTo = .xMax - offset
+
+                    For idxX As Integer = xFrom To xTo Step 2
+
+                        yFrom = .yMin + offset
+                        yTo = .yMax - offset
+
+                        For idxY As Integer = yFrom To yTo Step 2
+                            If Umfeld.IsInsideEllipse(idxX, xFrom, xTo, idxY, yFrom, yTo) Then
+
+                                Dim tplQuestion As New Triple(idxX, idxY, idxZ)
+                                Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
+
+                                If tplAnswer.Valide = ValidePlace.Yes Then
+                                    'Das ist hier nur eine Sicherheitsgurt.
+                                    '(Schützt vor Programmierfehlern, die sichtbar werden, weil der Stein dann fehlt.)
+                                    wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), tplAnswer)
+                                End If
                             End If
                         Next
                     Next
@@ -174,7 +198,7 @@ Namespace Umfeld
 
             Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
-            Return wb.ResultAsWerkstück
+            Return wb.ResultAsWerkstück(demoMode)
 
         End Function
 

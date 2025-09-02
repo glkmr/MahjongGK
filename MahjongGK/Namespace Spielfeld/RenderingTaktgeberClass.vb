@@ -30,7 +30,7 @@ Option Strict On
 
 Namespace Spielfeld
 
-    Public Class FrameSchedulerClass
+    Public Class RenderingTaktgeberClass
 
         ' ================================================
         ' Render-Architektur mit (einigermaßem) stabilem Takt

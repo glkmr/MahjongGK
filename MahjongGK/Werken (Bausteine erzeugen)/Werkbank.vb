@@ -24,9 +24,6 @@ Option Strict On
 '###########################################################################
 '
 '
-
-
-
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
@@ -107,14 +104,20 @@ Public Class Werkbank
             Return (SteinInfos, arrFB)
         End Get
     End Property
-    Public ReadOnly Property ResultAsWerkstück() As Werkstück
+    Public ReadOnly Property ResultAsWerkstück(demoMode As Boolean) As Werkstück
         Get
             If SteinInfos.Count > 0 Then
                 For idx As Integer = 0 To SteinInfos.Count - 1
                     With SteinInfos(idx)
-                        .IsWerkbankStein = True
-                        .SteinStatusIst = SteinStatus.WerkstückZufallsgrafik
-                        .SteinStatusUsed = SteinStatus.WerkstückZufallsgrafik
+                        If demoMode Then
+                            .IsWerkbankStein = False
+                            .SteinStatusIst = SteinStatus.Normal
+                            .SteinStatusUsed = SteinStatus.Normal
+                        Else
+                            .IsWerkbankStein = True
+                            .SteinStatusIst = SteinStatus.WerkstückZufallsgrafik
+                            .SteinStatusUsed = SteinStatus.WerkstückZufallsgrafik
+                        End If
                     End With
                 Next
             End If

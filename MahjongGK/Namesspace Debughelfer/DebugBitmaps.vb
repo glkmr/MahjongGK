@@ -34,7 +34,14 @@ Namespace DebugHelfer
     ''' <summary>
     ''' Debug-Hilfsmodul zum Anzeigen von Bitmap-Arrays in einem Fenster.
     ''' </summary>
-    Module DebugBitmaps
+    Public Module DebugBitmaps
+        Public Sub DebugShowBitmaps(ByVal bmp As Bitmap)
+            If bmp Is Nothing Then Return
+            Dim arrBmp As Bitmap() = {bmp}
+            Dim f As New DebugArrayBitmapsForm(arrBmp)
+            f.Show()                  ' nicht-modal anzeigen
+            f.BringToFront()
+        End Sub
 
         ' --- Aufrufer: einfach diese Prozedur verwenden ---
         Public Sub DebugShowArrayBitmaps(ByVal arrBmp() As Bitmap)
