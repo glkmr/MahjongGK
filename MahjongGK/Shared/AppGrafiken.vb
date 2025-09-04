@@ -3,6 +3,7 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 Imports System.Collections.Concurrent
+Imports System.Drawing.Imaging
 Imports System.IO
 
 ' ###########################################################
@@ -144,7 +145,7 @@ Public Module AppGrafiken
             Return src
         End If
         ' sanft skalieren auf 16x16
-        Dim bmp As New Bitmap(16, 16)
+        Dim bmp As New Bitmap(16, 16, PixelFormat.Format32bppPArgb)
         Using g As Graphics = Graphics.FromImage(bmp)
             g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
             g.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
@@ -157,7 +158,7 @@ Public Module AppGrafiken
     End Function
 
     Private Function MakeFallbackImage() As Image
-        Dim bmp As New Bitmap(16, 16)
+        Dim bmp As New Bitmap(16, 16, PixelFormat.Format32bppPArgb)
         Using g As Graphics = Graphics.FromImage(bmp)
             g.Clear(Color.Transparent)
             Using p As New Pen(Color.Red, 2.0F)

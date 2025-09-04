@@ -28,22 +28,23 @@ Partial Class frmMain
         Me.ToolStripMain = New System.Windows.Forms.ToolStrip()
         Me.ToolStripButton1 = New System.Windows.Forms.ToolStripButton()
         Me.PanelFrmMainUGrd = New System.Windows.Forms.Panel()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.lblInksOben = New System.Windows.Forms.Label()
         Me.TabControlMain = New System.Windows.Forms.TabControl()
         Me.TabPageSpielfeld = New System.Windows.Forms.TabPage()
-        Me.TabPageEinstellungen = New System.Windows.Forms.TabPage()
-        Me.TabPageEditor = New System.Windows.Forms.TabPage()
-        Me.ToolTipMain = New System.Windows.Forms.ToolTip(Me.components)
         Me.UCtlSpielfeldMain = New MahjongGK.UCtlSpielfeld()
+        Me.TabPageEinstellungen = New System.Windows.Forms.TabPage()
         Me.UCtlEinstellungenMain = New MahjongGK.UctlEinstellungen()
+        Me.TabPageEditor = New System.Windows.Forms.TabPage()
         Me.UCtlEditorMain = New MahjongGK.UCtlEditor()
+        Me.TabPageWerkbank = New System.Windows.Forms.TabPage()
+        Me.ToolTipMain = New System.Windows.Forms.ToolTip(Me.components)
+        Me.UCtlWerkbankMain = New MahjongGK.UCtlWerkbank()
         Me.ToolStripMain.SuspendLayout()
         Me.PanelFrmMainUGrd.SuspendLayout()
         Me.TabControlMain.SuspendLayout()
         Me.TabPageSpielfeld.SuspendLayout()
         Me.TabPageEinstellungen.SuspendLayout()
         Me.TabPageEditor.SuspendLayout()
+        Me.TabPageWerkbank.SuspendLayout()
         Me.SuspendLayout()
         '
         'MenuStripMain
@@ -75,8 +76,6 @@ Partial Class frmMain
         '
         'PanelFrmMainUGrd
         '
-        Me.PanelFrmMainUGrd.Controls.Add(Me.Label2)
-        Me.PanelFrmMainUGrd.Controls.Add(Me.lblInksOben)
         Me.PanelFrmMainUGrd.Controls.Add(Me.TabControlMain)
         Me.PanelFrmMainUGrd.Dock = System.Windows.Forms.DockStyle.Fill
         Me.PanelFrmMainUGrd.Location = New System.Drawing.Point(0, 24)
@@ -84,30 +83,12 @@ Partial Class frmMain
         Me.PanelFrmMainUGrd.Size = New System.Drawing.Size(1084, 442)
         Me.PanelFrmMainUGrd.TabIndex = 5
         '
-        'Label2
-        '
-        Me.Label2.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(996, 420)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(80, 13)
-        Me.Label2.TabIndex = 4
-        Me.Label2.Text = "lblRechtsUnten"
-        '
-        'lblInksOben
-        '
-        Me.lblInksOben.AutoSize = True
-        Me.lblInksOben.Location = New System.Drawing.Point(8, 7)
-        Me.lblInksOben.Name = "lblInksOben"
-        Me.lblInksOben.Size = New System.Drawing.Size(63, 13)
-        Me.lblInksOben.TabIndex = 3
-        Me.lblInksOben.Text = "lblInksOben"
-        '
         'TabControlMain
         '
         Me.TabControlMain.Controls.Add(Me.TabPageSpielfeld)
         Me.TabControlMain.Controls.Add(Me.TabPageEinstellungen)
         Me.TabControlMain.Controls.Add(Me.TabPageEditor)
+        Me.TabControlMain.Controls.Add(Me.TabPageWerkbank)
         Me.TabControlMain.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TabControlMain.Location = New System.Drawing.Point(0, 0)
         Me.TabControlMain.Name = "TabControlMain"
@@ -123,29 +104,8 @@ Partial Class frmMain
         Me.TabPageSpielfeld.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPageSpielfeld.Size = New System.Drawing.Size(1076, 416)
         Me.TabPageSpielfeld.TabIndex = 0
-        Me.TabPageSpielfeld.Text = "SpielsteinGenerator_zlv"
+        Me.TabPageSpielfeld.Text = "Spielfeld"
         Me.TabPageSpielfeld.UseVisualStyleBackColor = True
-        '
-        'TabPageEinstellungen
-        '
-        Me.TabPageEinstellungen.Controls.Add(Me.UCtlEinstellungenMain)
-        Me.TabPageEinstellungen.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageEinstellungen.Name = "TabPageEinstellungen"
-        Me.TabPageEinstellungen.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPageEinstellungen.Size = New System.Drawing.Size(900, 416)
-        Me.TabPageEinstellungen.TabIndex = 1
-        Me.TabPageEinstellungen.Text = "Einstellungen"
-        Me.TabPageEinstellungen.UseVisualStyleBackColor = True
-        '
-        'TabPageEditor
-        '
-        Me.TabPageEditor.Controls.Add(Me.UCtlEditorMain)
-        Me.TabPageEditor.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageEditor.Name = "TabPageEditor"
-        Me.TabPageEditor.Size = New System.Drawing.Size(900, 416)
-        Me.TabPageEditor.TabIndex = 2
-        Me.TabPageEditor.Text = "Editor"
-        Me.TabPageEditor.UseVisualStyleBackColor = True
         '
         'UCtlSpielfeldMain
         '
@@ -155,20 +115,60 @@ Partial Class frmMain
         Me.UCtlSpielfeldMain.Size = New System.Drawing.Size(1070, 410)
         Me.UCtlSpielfeldMain.TabIndex = 0
         '
+        'TabPageEinstellungen
+        '
+        Me.TabPageEinstellungen.Controls.Add(Me.UCtlEinstellungenMain)
+        Me.TabPageEinstellungen.Location = New System.Drawing.Point(4, 22)
+        Me.TabPageEinstellungen.Name = "TabPageEinstellungen"
+        Me.TabPageEinstellungen.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPageEinstellungen.Size = New System.Drawing.Size(1076, 416)
+        Me.TabPageEinstellungen.TabIndex = 1
+        Me.TabPageEinstellungen.Text = "Einstellungen"
+        Me.TabPageEinstellungen.UseVisualStyleBackColor = True
+        '
         'UCtlEinstellungenMain
         '
         Me.UCtlEinstellungenMain.Dock = System.Windows.Forms.DockStyle.Fill
         Me.UCtlEinstellungenMain.Location = New System.Drawing.Point(3, 3)
         Me.UCtlEinstellungenMain.Name = "UCtlEinstellungenMain"
-        Me.UCtlEinstellungenMain.Size = New System.Drawing.Size(894, 410)
+        Me.UCtlEinstellungenMain.Size = New System.Drawing.Size(1070, 410)
         Me.UCtlEinstellungenMain.TabIndex = 0
+        '
+        'TabPageEditor
+        '
+        Me.TabPageEditor.Controls.Add(Me.UCtlEditorMain)
+        Me.TabPageEditor.Location = New System.Drawing.Point(4, 22)
+        Me.TabPageEditor.Name = "TabPageEditor"
+        Me.TabPageEditor.Size = New System.Drawing.Size(1076, 416)
+        Me.TabPageEditor.TabIndex = 2
+        Me.TabPageEditor.Text = "Editor"
+        Me.TabPageEditor.UseVisualStyleBackColor = True
         '
         'UCtlEditorMain
         '
+        Me.UCtlEditorMain.Dock = System.Windows.Forms.DockStyle.Fill
         Me.UCtlEditorMain.Location = New System.Drawing.Point(0, 0)
         Me.UCtlEditorMain.Name = "UCtlEditorMain"
-        Me.UCtlEditorMain.Size = New System.Drawing.Size(892, 441)
+        Me.UCtlEditorMain.Size = New System.Drawing.Size(1076, 416)
         Me.UCtlEditorMain.TabIndex = 0
+        '
+        'TabPageWerkbank
+        '
+        Me.TabPageWerkbank.Controls.Add(Me.UCtlWerkbankMain)
+        Me.TabPageWerkbank.Location = New System.Drawing.Point(4, 22)
+        Me.TabPageWerkbank.Name = "TabPageWerkbank"
+        Me.TabPageWerkbank.Size = New System.Drawing.Size(1076, 416)
+        Me.TabPageWerkbank.TabIndex = 3
+        Me.TabPageWerkbank.Text = "Werkbank"
+        Me.TabPageWerkbank.UseVisualStyleBackColor = True
+        '
+        'UCtlWerkbankMain
+        '
+        Me.UCtlWerkbankMain.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.UCtlWerkbankMain.Location = New System.Drawing.Point(0, 0)
+        Me.UCtlWerkbankMain.Name = "UCtlWerkbankMain"
+        Me.UCtlWerkbankMain.Size = New System.Drawing.Size(1076, 416)
+        Me.UCtlWerkbankMain.TabIndex = 0
         '
         'frmMain
         '
@@ -185,11 +185,11 @@ Partial Class frmMain
         Me.ToolStripMain.ResumeLayout(False)
         Me.ToolStripMain.PerformLayout()
         Me.PanelFrmMainUGrd.ResumeLayout(False)
-        Me.PanelFrmMainUGrd.PerformLayout()
         Me.TabControlMain.ResumeLayout(False)
         Me.TabPageSpielfeld.ResumeLayout(False)
         Me.TabPageEinstellungen.ResumeLayout(False)
         Me.TabPageEditor.ResumeLayout(False)
+        Me.TabPageWerkbank.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -197,8 +197,6 @@ Partial Class frmMain
     Friend WithEvents MenuStripMain As MenuStrip
     Friend WithEvents ToolStripMain As ToolStrip
     Friend WithEvents PanelFrmMainUGrd As Panel
-    Friend WithEvents Label2 As Label
-    Friend WithEvents lblInksOben As Label
     Friend WithEvents TabControlMain As TabControl
     Friend WithEvents TabPageSpielfeld As TabPage
     Friend WithEvents UCtlSpielfeldMain As UCtlSpielfeld
@@ -208,4 +206,6 @@ Partial Class frmMain
     Friend WithEvents UCtlEditorMain As UCtlEditor
     Friend WithEvents ToolStripButton1 As ToolStripButton
     Friend WithEvents ToolTipMain As ToolTip
+    Friend WithEvents TabPageWerkbank As TabPage
+    Friend WithEvents UCtlWerkbankMain As UCtlWerkbank
 End Class

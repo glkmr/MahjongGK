@@ -29,7 +29,7 @@ Imports MahjongGK.Spielfeld
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-Public Class UCtlEditor
+Public Class UCtlWerkbank
 
 #Region "Code, der nicht entfernt werden darf (nicht zum TestCode gehörend)"
 
@@ -59,9 +59,9 @@ Public Class UCtlEditor
         ' Immer malen, Factor kommt vom Scheduler (Stopwatch-basiert):
         Dim factor As Double = RenderingTaktgeberModul.FrameScheduler.TimeDifferenzFaktor
 
-        Spielfeld.PaintSpielfeld_Paint(frmMain.VisibleUserControl.Editor,
+        Spielfeld.PaintSpielfeld_Paint(frmMain.VisibleUserControl.Werkbank,
                                        e,
-                                       New Rectangle(0, 0, Me.Width, Me.Height),
+                                       New Rectangle(200, 100, Me.Width - 200 - 50, Me.Height - 100 - 50),
                                        factor)
 
 #If DEBUGFRAME Then
@@ -74,5 +74,6 @@ Public Class UCtlEditor
     End Sub
 
 #End Region
+
 
 End Class

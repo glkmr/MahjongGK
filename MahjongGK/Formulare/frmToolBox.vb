@@ -24,55 +24,21 @@ Option Strict On
 '###########################################################################
 '
 '
-Imports MahjongGK.Spielfeld
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-Public Class UCtlEditor
+Public Class frmToolBox
 
-#Region "Code, der nicht entfernt werden darf (nicht zum TestCode gehörend)"
+    Public Shared FrmToolboxWidth As Integer = frmToolBox.Width
+    Public Shared FrmToolboxHeight As Integer = frmToolBox.Height
 
-    Public Sub New()
-        InitializeComponent()
-        Me.Dock = DockStyle.Fill
-        Me.DoubleBuffered = True
-        Me.SetStyle(ControlStyles.UserPaint Or
-                    ControlStyles.AllPaintingInWmPaint Or
-                    ControlStyles.OptimizedDoubleBuffer Or
-                    ControlStyles.ResizeRedraw, True)
-        ' Optional, wenn wirklich der kompletten Bereich selber gezeichnet wird:
-        Me.SetStyle(ControlStyles.Opaque, True)
-        Me.UpdateStyles()
-
-
+    Private Sub frmToolBox_Load(sender As Object, e As EventArgs) Handles Me.Load
+        'Me.Location = INI.ToolBox_Rectangle.Location
+        Me.EnsureLocationVisibleOnAnyScreen()
     End Sub
-
-    ' Ich fülle komplett selbst -> Hintergrund NICHT automatisch löschen
-    Protected Overrides Sub OnPaintBackground(pevent As PaintEventArgs)
-        ' absichtlich leer
+    Private Sub frmToolBox_LocationChanged(sender As Object, e As EventArgs) Handles Me.LocationChanged
+        INI.ToolBox_Rectangle = New Rectangle(Me.Location, Me.Size)
     End Sub
-
-    Private stopwatch As New Stopwatch
-
-    Protected Overrides Sub OnPaint(e As PaintEventArgs)
-        ' Immer malen, Factor kommt vom Scheduler (Stopwatch-basiert):
-        Dim factor As Double = RenderingTaktgeberModul.FrameScheduler.TimeDifferenzFaktor
-
-        Spielfeld.PaintSpielfeld_Paint(frmMain.VisibleUserControl.Editor,
-                                       e,
-                                       New Rectangle(0, 0, Me.Width, Me.Height),
-                                       factor)
-
-#If DEBUGFRAME Then
-        If stopwatch.IsRunning Then
-            Debug.WriteLine("Zeit seit letztem Paint: " & stopwatch.ElapsedMilliseconds & " ms, factor=" & factor.ToString("0.00"))
-        End If
-#End If
-        stopwatch.Restart()
-
-    End Sub
-
-#End Region
 
 End Class

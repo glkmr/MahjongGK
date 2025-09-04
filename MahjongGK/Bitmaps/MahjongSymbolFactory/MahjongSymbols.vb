@@ -2,6 +2,7 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+Imports System.Drawing.Imaging
 Imports System.Drawing.Text
 
 Namespace MahjongGKSymbolFactory
@@ -12,7 +13,7 @@ Namespace MahjongGKSymbolFactory
         ''' Erstellt ein Bitmap mit einem chinesisch wirkenden Mahjong-Symbol.
         ''' </summary>
         Public Function GenerateSymbolChinese(idx As SteinIndexEnum, size As Size) As Bitmap
-            Dim bmp As New Bitmap(size.Width, size.Height)
+            Dim bmp As New Bitmap(size.Width, size.Height, PixelFormat.Format32bppPArgb)
             Using g As Graphics = Graphics.FromImage(bmp)
                 g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
                 g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit

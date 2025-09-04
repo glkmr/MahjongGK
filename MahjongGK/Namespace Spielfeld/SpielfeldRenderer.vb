@@ -52,23 +52,23 @@ Namespace Spielfeld
             End If
 
 
+            Dim shrink As Single = INI.Spielfeld_FramingThickness / 2.0F
+            Dim shrinkLeft As Single = MJ_MARGIN_ABSOLUT_LEFT_HALF + shrink
+            Dim shrinkRight As Single = -shrinkLeft - MJ_MARGIN_ABSOLUT_RIGHT_HALF - shrink
+            Dim shrinkTop As Single = MJ_MARGIN_ABSOLUT_TOP_HALF + shrink
+            Dim shrinkBottom As Single = -shrinkTop - MJ_MARGIN_ABSOLUT_BOTTOM_HALF - shrink
+
+            Dim shrinkRectF As New RectangleF(rectOutput.X + shrinkLeft, rectOutput.Y + shrinkTop, rectOutput.Width + shrinkRight, rectOutput.Height + shrinkBottom)
+
             If INI.Spielfeld_DrawFraming Then
-                Dim shrink As Single = INI.Spielfeld_FramingThickness / 2.0F
-                Dim shrinkLeft As Single = MJ_MARGIN_ABSOLUT_LEFT_HALF + shrink
-                Dim shrinkRight As Single = -shrinkLeft - MJ_MARGIN_ABSOLUT_RIGHT_HALF - shrink
-                Dim shrinkTop As Single = MJ_MARGIN_ABSOLUT_TOP_HALF + shrink
-                Dim shrinkBottom As Single = -shrinkTop - MJ_MARGIN_ABSOLUT_BOTTOM_HALF - shrink
-
-                Dim shrinkRect As New RectangleF(rectOutput.X + shrinkLeft, rectOutput.Y + shrinkTop, rectOutput.Width + shrinkRight, rectOutput.Height + shrinkBottom)
-
                 Using pen As New Pen(INI.Spielfeld_FramingColor, INI.Spielfeld_FramingThickness)
-                    gfx.DrawRectangle(pen, shrinkRect.X, shrinkRect.Y, shrinkRect.Width, shrinkRect.Height)
+                    gfx.DrawRectangle(pen, shrinkRectF.X, shrinkRectF.Y, shrinkRectF.Width, shrinkRectF.Height)
                 End Using
             End If
 
             If INI.Spielfeld_DrawRenderRect Then
                 Using pen As New Pen(INI.Spielfeld_RenderRectColor)
-                    gfx.DrawRectangle(pen, renderRect)
+                    gfx.DrawRectangle(pen, renderRect.Left + CInt(shrinkRectF.Left), renderRect.Top + CInt(shrinkRectF.Top), renderRect.Width, renderRect.Height)
                 End Using
             End If
 
@@ -108,8 +108,8 @@ Namespace Spielfeld
                                 If .AnimShowAnimated Then
                                     PaintAnimatedStein(gfx, rectOutput, timeDifferenzFaktor, aktSteinInfo, New Triple(x, y, z))
                                 Else
-                                    Dim left As Integer = renderRectLeft + (steinWidthHalf * (x - 1) + offset3DLeftSumme - (offset3DLeftJeEbene * z)) '- INI.Rendering_RectOutputPaddingLeft
-                                    Dim top As Integer = renderRectTop + (steinHeightHalf * (y - 1) + offset3DTopSumme - (offset3DTopJeEbene * z)) '- INI.Rendering_RectOutputPaddingTop
+                                    Dim left As Integer = renderRectLeft + (steinWidthHalf * (x - 1) + offset3DLeftSumme - (offset3DLeftJeEbene * z)) + CInt(shrinkRectF.Left)
+                                    Dim top As Integer = renderRectTop + (steinHeightHalf * (y - 1) + offset3DTopSumme - (offset3DTopJeEbene * z)) + CInt(shrinkRectF.Top)
                                     ''Debug
                                     'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ aktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
                                     ''/Debug

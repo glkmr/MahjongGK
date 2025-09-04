@@ -66,6 +66,13 @@ Public Class IniManager
         Name = fileName_ext
         'In die Liste in INI eintragen
         AllIniManagers.Add(Me)
+        Try
+            'sicherstellen, daß die nicht versehentlich zum UpDaten genommen wird.
+            '(schwer zu findender Fehler)
+            File.Delete(_fileFullPath & ".tmp")
+        Catch ex As Exception
+
+        End Try
         Load(loadTmpFile:=False)
     End Sub
     '
@@ -79,11 +86,12 @@ Public Class IniManager
         Load(loadTmpFile:=False)
     End Sub
 
+
+
     ''' <summary>
-    ''' Alle WriteValue-Überladungen geben True zurück, wenn sich der Wert gegenüber dem vorhandenem Wert 
-    ''' oder dem Default geändert, ausgenommen, dieses Flag steht auf True. Dann wird immer False
-    ''' zurückgegeben. Es wird beim Initialisieren beim allerertem Aufruf in INI automatisch gesetzt,
-    ''' d.h. bei Initialisieren kommen keine Events.
+    ''' IniEvents hat die Werte: None, OnChangeValue, OnWriteValue, OnUpdate. Je nach Wert geben die Überladungen
+    ''' WriteValue True oder False zurück. None gibt immer False zurück. Grundeinstellung bei der Initialisierung.
+    ''' 
     ''' </summary>
     ''' <returns></returns>
     Public Property RaiseIniEvents As IniEvents
@@ -95,11 +103,16 @@ Public Class IniManager
         End Set
     End Property
 
-    Public Sub BackupRaiseIniEvents()
+    Public Sub BackupValueRaiseIniEvents(Optional newValue As IniEvents = CType(-1, IniEvents))
+
         _raiseIniEventsSic = _raiseIniEvents
+        If newValue <> -1 Then
+            _raiseIniEvents = newValue
+        End If
+
     End Sub
 
-    Public Sub RestoreRaiseIniEvents()
+    Public Sub RestoreValueRaiseIniEvents()
         _raiseIniEvents = _raiseIniEventsSic
     End Sub
 
@@ -666,7 +679,7 @@ Public Class IniManager
                     EnsureCommentForKey(comment, i, folderLine)
                 End If
 
-                Return (changed)
+                Return Announce(changed)
 
             End If
         Next
@@ -1835,17 +1848,21 @@ Public Class IniManager
     ''' Lädt die Datei oder erzeugt neue.
     ''' </summary>
     Private Sub Load(loadTmpFile As Boolean)
+
         lines.Clear()
 
+        ' Je nach Flag richtigen Pfad zusammensetzen
+        Dim path As String = _fileFullPath & If(loadTmpFile, ".tmp", String.Empty)
 
-        If File.Exists(_fileFullPath & If(loadTmpFile, ".tmp", String.Empty)) Then
-            For Each l As String In File.ReadAllLines(_fileFullPath)
+        If File.Exists(path) Then
+            For Each l As String In File.ReadAllLines(path)
                 Dim trimmed As String = l.Trim()
                 If trimmed <> "" Then
                     lines.Add(trimmed)
                 End If
             Next
         End If
+
     End Sub
 
 #End Region

@@ -30,6 +30,7 @@ Option Strict On
 
 
 Imports System.Drawing.Drawing2D
+Imports System.Drawing.Imaging
 
 Namespace Spielfeld
 
@@ -252,7 +253,7 @@ Namespace Spielfeld
         Private Function ScaleBitmap(src As Bitmap, scaleX As Single, scaleY As Single) As Bitmap
             Dim w As Integer = Math.Max(1, CInt(src.Width * scaleX))
             Dim h As Integer = Math.Max(1, CInt(src.Height * scaleY))
-            Dim newBmp As New Bitmap(w, h)
+            Dim newBmp As New Bitmap(w, h, PixelFormat.Format32bppPArgb)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
                 g.InterpolationMode = INI.Rendering_InterpolationMode
@@ -264,7 +265,7 @@ Namespace Spielfeld
         Private Function RotateBitmap(src As Bitmap, angle As Single, scale As Single) As Bitmap
             Dim w As Integer = src.Width
             Dim h As Integer = src.Height
-            Dim newBmp As New Bitmap(w, h)
+            Dim newBmp As New Bitmap(w, h, PixelFormat.Format32bppPArgb)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
                 g.InterpolationMode = INI.Rendering_InterpolationMode
@@ -278,7 +279,7 @@ Namespace Spielfeld
         End Function
 
         Private Function TranslateBitmap(src As Bitmap, offsetX As Integer, offsetY As Integer) As Bitmap
-            Dim newBmp As New Bitmap(src.Width, src.Height)
+            Dim newBmp As New Bitmap(src.Width, src.Height, PixelFormat.Format32bppPArgb)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
                 g.InterpolationMode = INI.Rendering_InterpolationMode
@@ -290,7 +291,7 @@ Namespace Spielfeld
         Private Function ScaleTranslateBitmap(src As Bitmap, scaleX As Single, scaleY As Single, offsetX As Integer, offsetY As Integer) As Bitmap
             Dim w As Integer = Math.Max(1, CInt(src.Width * scaleX))
             Dim h As Integer = Math.Max(1, CInt(src.Height * scaleY))
-            Dim newBmp As New Bitmap(src.Width, src.Height)
+            Dim newBmp As New Bitmap(src.Width, src.Height, PixelFormat.Format32bppPArgb)
             newBmp.MakeTransparent()
             Using g As Graphics = Graphics.FromImage(newBmp)
                 g.InterpolationMode = INI.Rendering_InterpolationMode

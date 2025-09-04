@@ -50,14 +50,16 @@ Namespace Spielfeld
         Private _lastRectOutput As New Rectangle
 
         Private _initialisierungLäuft As Boolean
-        Private _initialisierungDone As Boolean
+        Private _updateSpielfeldIsDone As Boolean
 
         Private _createScreenShot As Boolean
 
         Private _BeginnPause As Boolean
         Private _ContinuePause As Boolean
         Private _EndePause As Boolean
+        Private _forceUpdate As Boolean
         Private _startIniUpdate As Boolean
+        Private _takteAussetzen As Integer
         Private _readNewIni As Boolean
         Private _raiseIniEvents As IniEvents
 
@@ -86,7 +88,6 @@ Namespace Spielfeld
             SpielfeldDaten.AktRendering = Rendering.None
             _lastRendering = Rendering.None
             _initialisierungLäuft = True
-            _initialisierungDone = False
         End Sub
         Public Sub PaintSpielfeld_DeInitialisierung()
             _currentControl = Nothing
@@ -95,7 +96,6 @@ Namespace Spielfeld
             SpielfeldDaten.AktRendering = Rendering.None
             _lastRendering = Rendering.None
             _initialisierungLäuft = False
-            _initialisierungDone = False
         End Sub
         '
         ''' <summary>
@@ -111,7 +111,6 @@ Namespace Spielfeld
             SpielfeldDaten.AktRendering = Rendering.None
             _lastRendering = Rendering.None
             _initialisierungLäuft = True
-            _initialisierungDone = False
         End Sub
 
         ''' <summary>
@@ -126,10 +125,10 @@ Namespace Spielfeld
                 _bmpFrozen.Dispose()
             End If
         End Sub
-        Public Sub PaintSpielfeld_EndPause(Optional startIniUpdate As Boolean = False, Optional raiseIniEvents As IniEvents = IniEvents.None, Optional readNewIni As Boolean = False)
+        Public Sub PaintSpielfeld_EndPause(Optional startIniUpdate As Boolean = False, Optional raiseIniEvents As IniEvents = IniEvents.None)
             _ContinuePause = False
             _EndePause = True
-            _readNewIni = readNewIni
+            _readNewIni = raiseIniEvents = IniEvents.OnUpdate
             _visibleUserControlOnBeginnPause = frmMain.VisibleUserControl.None
             _startIniUpdate = startIniUpdate
             _raiseIniEvents = raiseIniEvents
@@ -179,7 +178,18 @@ Namespace Spielfeld
         ''' <param name="timeDifferenzFaktor"></param>
         Public Sub PaintSpielfeld_Paint(visibleUserControl As frmMain.VisibleUserControl, e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
-            Dim forceUpdate As Boolean = False
+            If _takteAussetzen > 0 Then
+                _takteAussetzen -= 1
+                Exit Sub
+                'Nötig, wenn die INI im laufendem Betriebgeändert wird, (was nur wärend der Programmentwicklung
+                'möglich ist und auch dann nur, wenn das Programm in der IDE läuft), weil die Ini dann diverse
+                'Events auslöst, die erst abgearbeitet werden müssen. Um Seiteneffekte zu vermeiden, muß das
+                'Rendern ausgesetzt werden. Das führt natürlich zum kurzer schwarzer Anzeige, aber das ist
+                'egal, das sieht ja nur der Programmierer und der weis spätestens jetzt, warum das so ist.
+                'Die Taktzahl ist bewußt viel zu hoch angesetzt (etwa eine Sekunde), damit erübrigt sich es,
+                'darüber nachzudenken, ob es notwendig wird, die Taktzahl später nochmal zu erhöhen. 
+            End If
+
 
             If _ContinuePause OrElse _createScreenShot Then
                 If _BeginnPause OrElse _createScreenShot Then
@@ -222,14 +232,17 @@ Namespace Spielfeld
                     INI.UpDateIni(_raiseIniEvents, _readNewIni)
                     _raiseIniEvents = IniEvents.None
                     _readNewIni = False
-                    forceUpdate = True
+                    _forceUpdate = True
                     Application.DoEvents()
+                    _takteAussetzen = 30
+                    Exit Sub
                 End If
             End If
 
             'Sicherheitsgurt
             If Not (visibleUserControl = frmMain.VisibleUserControl.Spielfeld Or
-                visibleUserControl = frmMain.VisibleUserControl.Editor) Then
+                    visibleUserControl = frmMain.VisibleUserControl.Editor Or
+                visibleUserControl = frmMain.VisibleUserControl.Werkbank) Then
                 Exit Sub
             End If
 
@@ -242,7 +255,7 @@ Namespace Spielfeld
                         If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo) Then
                             If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
-                                _initialisierungDone = True
+                                _updateSpielfeldIsDone = True
                                 UpdateSpielfeld(rectOutput)
                                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
                                 Exit Sub
@@ -254,7 +267,7 @@ Namespace Spielfeld
                         If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo) Then
                             If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
-                                _initialisierungDone = True
+                                _updateSpielfeldIsDone = True
                                 UpdateSpielfeld(rectOutput)
                                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
                                 Exit Sub
@@ -266,7 +279,7 @@ Namespace Spielfeld
                         If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo) Then
                             If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
-                                _initialisierungDone = True
+                                _updateSpielfeldIsDone = True
                                 UpdateSpielfeld(rectOutput)
                                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
                                 Exit Sub
@@ -276,11 +289,14 @@ Namespace Spielfeld
                 End Select
             End If
 
-            If _initialisierungDone Then
-                UpdateSpielfeld(rectOutput, forceUpdate)
+            If Not _updateSpielfeldIsDone Then
+                UpdateSpielfeld(rectOutput, _forceUpdate)
                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
             End If
 
+
+            _forceUpdate = False
+            _updateSpielfeldIsDone = False
         End Sub
 
     End Module

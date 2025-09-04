@@ -59,7 +59,61 @@ Namespace Spielfeld
         Public Property EditorSpielfeldInfo As SpielfeldInfo = Nothing
         Public Property WerkbankSpielfeldInfo As SpielfeldInfo = Nothing
 
-        Public AktRendering As Rendering
+        Public Property AktRendering As Rendering
+            Get
+                Return RuntimeOnly_AktRendering
+            End Get
+            Set(value As Rendering)
+                RuntimeOnly_AktRendering = value
+            End Set
+        End Property
+
+        Public Property FrozenBitmapPlayerSpielfeld As Bitmap = Nothing
+        Public Property FrozenBitmapEditorSpielfeld As Bitmap = Nothing
+        Public Property FrozenBitmapWerkbankSpielfeld As Bitmap = Nothing
+
+        Private _UseFrozenBitmapPlayerSpielfeld As Boolean
+        Public Property UseFrozenBitmapPlayerSpielfeld As Boolean
+            Get
+                If IsNothing(FrozenBitmapPlayerSpielfeld) Then
+                    Return False
+                Else
+                    Return _UseFrozenBitmapPlayerSpielfeld
+                End If
+            End Get
+            Set(value As Boolean)
+                _UseFrozenBitmapPlayerSpielfeld = value
+            End Set
+        End Property
+
+        Private _UseFrozenBitmapEditorSpielfeld As Boolean
+        Public Property UseFrozenBitmapEditorSpielfeld As Boolean
+            Get
+                If IsNothing(FrozenBitmapEditorSpielfeld) Then
+                    Return False
+                Else
+                    Return _UseFrozenBitmapEditorSpielfeld
+                End If
+            End Get
+            Set(value As Boolean)
+                _UseFrozenBitmapEditorSpielfeld = value
+            End Set
+        End Property
+
+        Private _UseFrozenBitmapWerkbankSpielfeld As Boolean
+        Public Property UseFrozenBitmapWerkbankSpielfeld As Boolean
+            Get
+                If IsNothing(FrozenBitmapWerkbankSpielfeld) Then
+                    Return False
+                Else
+                    Return _UseFrozenBitmapWerkbankSpielfeld
+                End If
+            End Get
+            Set(value As Boolean)
+                _UseFrozenBitmapWerkbankSpielfeld = value
+            End Set
+        End Property
+
 
 
         Public xMin As Integer = 1
@@ -67,9 +121,39 @@ Namespace Spielfeld
         Public zMin As Integer = 0
         Public xMax As Integer
         Public yMax As Integer
-        Public xMaxSteine As Integer
-        Public yMaxSteine As Integer
         Public zMax As Integer
+        '
+        ''' <summary>
+        ''' Die Zuweisung einer der Werte X, Y oder Z speichert diese in der INI
+        ''' was dort ein Event auslößt, was wiederum die Anzeige in der Oberfläche
+        ''' aktualisiert. Da eine Änderung der Anzeige von Spielfeld, Editor und Werkbank
+        ''' stets einze Zuweisung nach sich zieht, ist die Anzeige immer aktuell.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property xMaxSteine As Integer
+            Get
+                Return INI.Rendering_AktMaxSteineX
+            End Get
+            Set(value As Integer)
+                INI.Rendering_AktMaxSteineX = value
+            End Set
+        End Property
+        Public Property yMaxSteine As Integer
+            Get
+                Return INI.Rendering_AktMaxSteineY
+            End Get
+            Set(value As Integer)
+                INI.Rendering_AktMaxSteineY = value
+            End Set
+        End Property
+        Public Property zMaxSteine As Integer
+            Get
+                Return INI.Rendering_AktMaxSteineZ
+            End Get
+            Set(value As Integer)
+                INI.Rendering_AktMaxSteineZ = value
+            End Set
+        End Property
 
         Public renderRectLeft As Integer
         Public renderRectTop As Integer
@@ -111,6 +195,8 @@ Namespace Spielfeld
         '
         Public steinWidthLastCreated As Integer
         Public steinHeightLastCreated As Integer
+
+
 
     End Module
 

@@ -291,7 +291,7 @@ Namespace Spielfeld
         ''' Bild skalieren mit einstellbarer Qualität.
         ''' </summary>
         Private Function ResizeBitmap(src As Image, targetWidth As Integer, targetHeight As Integer, highQuality As Boolean) As Bitmap
-            Dim dest As New Bitmap(targetWidth, targetHeight)
+            Dim dest As New Bitmap(targetWidth, targetHeight, PixelFormat.Format32bppPArgb)
             Using g As Graphics = Graphics.FromImage(dest)
                 g.InterpolationMode = If(highQuality, InterpolationMode.HighQualityBicubic, InterpolationMode.HighQualityBilinear)
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality

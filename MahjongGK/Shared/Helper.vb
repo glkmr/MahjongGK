@@ -28,6 +28,7 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
+Imports System.Runtime.CompilerServices
 Imports System.Xml
 '
 ''' <summary>
@@ -110,5 +111,69 @@ Public Module Helper
         End If
 
     End Function
+
+    ''' <summary>
+    ''' Sorgt dafür, dass die Form auf irgendeinem Monitor so positioniert ist,
+    ''' dass mindestens ein definierter Bereich (grabWidth x grabHeight) sichtbar ist.
+    ''' Größe (Width/Height) bleibt unberührt.
+    ''' </summary>
+    <Extension()>
+    Public Sub EnsureLocationVisibleOnAnyScreen(frm As Form, Optional grabWidth As Integer = 200, Optional grabHeight As Integer = 100)
+
+        Dim rc As Rectangle = frm.Bounds
+
+        ' Ziel-WorkingArea: der nächste Screen, andernfalls Primärscreen
+        Dim scr As Screen = Screen.FromRectangle(rc)
+        Dim wa As Rectangle = scr.WorkingArea
+
+        Dim intersects As Boolean = Screen.AllScreens.Any(Function(s) s.WorkingArea.IntersectsWith(rc))
+        If Not intersects Then
+            ' Falls komplett off-screen (z. B. Monitor entfernt):
+            ' Nimm Primärmonitor als Referenz
+            wa = Screen.PrimaryScreen.WorkingArea
+        End If
+
+        ' Nur Location anpassen – Breite/Höhe unverändert lassen.
+        ' Ziel: Mindestens grabWidth sichtbar (horizontal),
+        '       und die Titelleiste in Höhe von grabHeight greifbar.
+        Dim newX As Integer = rc.X
+        Dim newY As Integer = rc.Y
+
+        ' Horizontal: linke Kante so klemmen, dass min. grabWidth im wa sichtbar ist
+        If rc.Right < wa.Left + grabWidth Then
+            newX = wa.Left + grabWidth - rc.Width
+        ElseIf rc.X > wa.Right - grabWidth Then
+            newX = wa.Right - grabWidth
+        ElseIf rc.X < wa.Left Then
+            newX = wa.Left
+        End If
+
+        ' Vertikal: Titelleiste greifbar lassen (min. grabHeight im wa sichtbar)
+        ' -> obere Kante zwischen wa.Top und wa.Bottom - grabHeight klemmen
+        If rc.Bottom < wa.Top + grabHeight Then
+            newY = wa.Top + grabHeight - rc.Height
+        ElseIf rc.Y > wa.Bottom - grabHeight Then
+            newY = wa.Bottom - grabHeight
+        ElseIf rc.Y < wa.Top Then
+            newY = wa.Top
+        End If
+
+        ' Setzen, nur wenn nötig
+        If newX <> rc.X OrElse newY <> rc.Y Then
+            frm.Location = New Point(newX, newY)
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' Komfort-Wrapper: garantiert, dass die Titelleiste greifbar sichtbar ist.
+    ''' Größe bleibt unverändert.
+    ''' </summary>
+    <Extension()>
+    Public Sub EnsureTitleBarGrabVisible(frm As Form)
+        Dim grabH As Integer = SystemInformation.CaptionHeight + (SystemInformation.FrameBorderSize.Height * 2)
+        If grabH < 24 Then grabH = 24 ' Sicherheitsuntergrenze
+        frm.EnsureLocationVisibleOnAnyScreen(grabWidth:=40, grabHeight:=grabH)
+    End Sub
+
 
 End Module

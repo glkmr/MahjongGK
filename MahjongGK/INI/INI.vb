@@ -100,8 +100,9 @@ Public Module INI
 
         AllIniManagersSetRaiseIniEvents(IniEvents.None)
         'Verhindert den Aufruf der Events hier in INI.
-        AllIniManagersInitAllDefaults()
+        AllIniManagersInitAllDefaultsAndSave()
         AllIniManagerSave()
+        AllIniManagersSetRaiseIniEvents(IniEvents.OnWriteValue)
     End Sub
     '
     ''' <summary>
@@ -112,7 +113,7 @@ Public Module INI
     Public Sub Initialisierung(update As Boolean, raiseIniEventsDefault As IniEvents)
 
         If update Then
-            UpDateIni(IniEvents.OnUpdate, readNewIni:=False)
+            UpDateIni(IniEvents.OnUpdate, readNewIniFromIniTmp:=False)
         End If
 
         AllIniManagersSetRaiseIniEvents(raiseIniEventsDefault)
@@ -171,11 +172,24 @@ Public Module INI
     '   ....
     'End Sub
     '
-    'Die Events werden nur ausgelößt, wenn  
+    'Wann events ausgelöst werden, kann gesteuert werden über die Enumeration
+    '
+    'Public Enum IniEvents
+    '    None
+    '    OnChangeValue
+    '    OnWriteValue
+    '    OnUpdate
+    'End Enum
+
+
     '
     'WICHTIG:
     'Die Namen der Properties müssen alle mindestens einen Unterstrich haben!
     'Das vor dem (erstem) Unterstrich ist der Folder-Name, das dahinter der Key.
+    'genauso WICHTIG:
+    'Alle anderen Property, Function oder Sub im Modul dürfen KEINE Unterstriche haben.
+    'Es kann zu schwer zu findende Seiteneffekten kommen, weil Automatismen integriert
+    'sind, die nach dem Unterstrich selektieren.
     '
     'Die erzeugten Dateien sind normale txt-Dateien.
     'Hat während der Programmentwicklung den Vorteil, dass Werte geändert werden können,
@@ -846,10 +860,11 @@ Public Module INI
         Get
             If Not _Rendering_OrgGrafikReferenceSizeWidth.HasValue Then
                 Dim [Default] As Integer = 198
-                Dim comment As String = "Die Originalgröße der Grafiken bezieht das Programm aus den Grafiken selber. Die Referenzgröße" &
-                                        "~bestimmt die maximale Größe der verwendeten Steine und das Seitenverhältniss. Sind Width und" &
-                                        "~Height gleich, sind die Steine quadratisch! Default für die Breite: 198, für die Höhe: 252." &
-                                        "~Ist einer der Werte 0, werden die OrgGrafikSize-Werte genommen. Gültige Werte 0 - 600 Pixel."
+                Dim comment As String = "Die Originalgröße der Grafiken bezieht das Programm aus den Grafiken selber. Die Referenzgröße bestimmt" &
+                                        "~die maximale Größe der verwendeten Steine und das Seitenverhältniss. Default Breite: 198, Höhe: 252." &
+                                        $"~Ist einer der Werte kleiner {MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT}, werden die OrgGrafikSize-Werte genommen. Gültige Werte 0 bis {MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT} Pixel." &
+                                        "~Das Seitenverhältnis ist von 1:2 bis 2:1 begrenzt."
+
                 _Rendering_OrgGrafikReferenceSizeWidth = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_OrgGrafikReferenceSizeWidth = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikReferenceSizeWidth.Value))
             End If
@@ -921,11 +936,11 @@ Public Module INI
         Get
             If Not _Rendering_Offset3DMaxX.HasValue Then
                 Dim [Default] As Integer = 30
-                Dim comment As String = "Die Gesamt-Verschiebung eines 10 Steine hohen Stapels in horizontaler Richtung in Pixel um den" &
-                                        "~3D-Effekt zu erreichen, bei maximaler Steingröße. Erlaubt: -60 bis +60. Bei = 0 gibt es keinen" &
+                Dim comment As String = "Die Gesamt-Verschiebung eines 10 Steine hohen Stapels in X und Y Richtung in Pixel um den" &
+                                        "~3D-Effekt zu erreichen, bei maximaler Steingröße. Erlaubt: -100 bis +100. Bei = 0 gibt es keinen" &
                                         "~3D-Effekt, wenn Offset3DMinPerLayerX/Y auch auf 0 steht. Default: 30"
                 _Rendering_Offset3DMaxX = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_Offset3DMaxX = Math.Max(-60, Math.Min(60, _Rendering_Offset3DMaxX.Value))
+                _Rendering_Offset3DMaxX = Math.Max(-200, Math.Min(200, _Rendering_Offset3DMaxX.Value))
             End If
             Return _Rendering_Offset3DMaxX.Value
         End Get
@@ -941,7 +956,7 @@ Public Module INI
         Get
             If Not _Rendering_Offset3DMaxY.HasValue Then
                 Dim [Default] As Integer = 30
-                Dim comment As String = "Wie vor für die Vertikale."
+                Dim comment As String = Nothing
                 _Rendering_Offset3DMaxY = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_Offset3DMaxY = Math.Max(-60, Math.Min(60, _Rendering_Offset3DMaxY.Value))
             End If
@@ -958,10 +973,10 @@ Public Module INI
         Get
             If Not _Rendering_Offset3DMinPerLayerX.HasValue Then
                 Dim [Default] As Integer = 1
-                Dim comment As String = "Die Mindest-Verschiebung je Stein horizontaler Richtung in Pixel, bei jeder Steingröße." &
-                                        "~Erlaubt: 0 bis 5. 0 nur verwenden, wenn Rendering_Offset3DMaxX auch auf 0 steht. Default: 1"
+                Dim comment As String = "Die Mindest-Verschiebung je Stein in Pixel, unabhängig von der Steingröße." &
+                                        "~Erlaubt: 0 bis 5. Die 0 nur verwenden, wenn Rendering_Offset3DMaxX auch auf 0 steht. Default: 1"
                 _Rendering_Offset3DMinPerLayerX = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_Offset3DMinPerLayerX = Math.Min(0, Math.Min(5, _Rendering_Offset3DMinPerLayerX.Value))
+                _Rendering_Offset3DMinPerLayerX = Math.Max(0, Math.Min(5, _Rendering_Offset3DMinPerLayerX.Value))
             End If
             Return _Rendering_Offset3DMinPerLayerX.Value
         End Get
@@ -977,9 +992,9 @@ Public Module INI
         Get
             If Not _Rendering_Offset3DMinPerLayerY.HasValue Then
                 Dim [Default] As Integer = 1
-                Dim comment As String = "Wie vor für die Vertikale."
+                Dim comment As String = Nothing
                 _Rendering_Offset3DMinPerLayerY = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_Offset3DMinPerLayerY = Math.Min(0, Math.Min(5, _Rendering_Offset3DMinPerLayerY.Value))
+                _Rendering_Offset3DMinPerLayerY = Math.Max(0, Math.Min(5, _Rendering_Offset3DMinPerLayerY.Value))
             End If
             Return _Rendering_Offset3DMinPerLayerY.Value
         End Get
@@ -1097,6 +1112,47 @@ Public Module INI
         End Set
     End Property
 
+    Public Event Rendering_AktMaxSteineXYZ_Event()
+    Public Property Rendering_AktMaxSteineX As Integer
+        Get
+            Dim [Default] As Integer = 0
+            Dim comment As String = "Finger weg, werden vom Programm verwaltet."
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            If BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString) Then
+                RaiseEvent Rendering_AktMaxSteineXYZ_Event()
+            End If
+        End Set
+    End Property
+
+    Public Property Rendering_AktMaxSteineY As Integer
+        Get
+            Dim [Default] As Integer = 0
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            If BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString) Then
+                RaiseEvent Rendering_AktMaxSteineXYZ_Event()
+            End If
+        End Set
+    End Property
+
+    Public Property Rendering_AktMaxSteineZ As Integer
+        Get
+            Dim [Default] As Integer = 0
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            If BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString) Then
+                RaiseEvent Rendering_AktMaxSteineXYZ_Event()
+            End If
+        End Set
+    End Property
+
+
 #End Region
 
 #Region "Editor"
@@ -1137,7 +1193,7 @@ Public Module INI
             Dim comment As String = "Sondersteine sind die 4 Blumen und die 4 Jahreszeiten." &
                                     "~Hiermit wird gesteuert, auf wieviel Normalsteinpaare ein Sondersteinpaar kommt." &
                                     "~Sollen alle Steine gleichhäufig vorkommen, ist der Wert 17, sollen die Sondersteine" &
-                                    "~nur halb so häufig vorkommen (wie im Spiel mit 144 Steinen) ist der Wert 34. Default: 17"
+                                    "~nur halb so häufig vorkommen ist der Wert 34. Default: 17"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Double)
@@ -1150,7 +1206,7 @@ Public Module INI
     Public Property Editor_VorratNoSortAreaEndIndexDefault As Integer
         Get
             Dim [Default] As Integer = 9
-            Dim comment As String = "In Edtor läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
+            Dim comment As String = "Im Editor läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
                                     "~hier angegebenem Index. Default: 9 (=10 Steine), abschalten mit -1"
             'Rückgabe 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
@@ -1428,7 +1484,7 @@ Public Module INI
     Public Property InfoMessageBox_FontMessage As Font
         Get
             Dim [Default] As New Font("Segoe UI", 12.0F, FontStyle.Regular)
-            Dim comment As String = "Andere serifenlose Standardschriften: Arial, Segoe UI, Calibri, Tahoma, Verdana, sans-serif. Default Segoe UI;12;Regular"
+            Dim comment As String = Nothing
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Font)
@@ -1450,7 +1506,7 @@ Public Module INI
     Public Property InfoMessageBox_FontMessageMonoSpaced As Font
         Get
             Dim [Default] As New Font("Cascadia Mono", 12.0F, FontStyle.Regular)
-            Dim comment As String = "Andere diktengleiche Fonts: Cascadia Mono, Consolas, Lucida Console, Courier New, monospace. Default: Cascadia Mono;12;Regular"
+            Dim comment As String = Nothing
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Font)
@@ -1536,14 +1592,95 @@ Public Module INI
 
 #End Region
 
+#Region "Toolbox"
+    '
+    ''' <summary>
+    ''' Speicherung der aktuellen Position der Form Toolbox
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ToolBox_Rectangle As Rectangle
+        Get
+            Dim [Default] As New Rectangle(100, 100, frmToolBox.FrmToolboxWidth, frmToolBox.FrmToolboxHeight) '
+            Dim comment As String = Nothing
+            Dim rc As Rectangle = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+
+            ' --- Größe absichern 
+            rc.Width = frmToolBox.FrmToolboxWidth
+            rc.Height = frmToolBox.FrmToolboxHeight
+
+            ' Arbeitsbereich des Monitors ermitteln, der dem Rechteck am nächsten ist
+            Dim wa As Rectangle = Screen.FromRectangle(rc).WorkingArea
+
+            ' Falls zu groß: auf Arbeitsbereich kappen
+            If rc.Width > wa.Width Then rc.Width = wa.Width
+            If rc.Height > wa.Height Then rc.Height = wa.Height
+
+            ' Position so klemmen, dass das Rechteck komplett innerhalb des Arbeitsbereichs liegt
+            If rc.Right > wa.Right Then rc.X = wa.Right - rc.Width
+            If rc.Bottom > wa.Bottom Then rc.Y = wa.Bottom - rc.Height
+            If rc.X < wa.Left Then rc.X = wa.Left
+            If rc.Y < wa.Top Then rc.Y = wa.Top
+
+            Return rc
+        End Get
+        Set(value As Rectangle)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+
+
+#End Region
+
+
+#Region "RuntimeOnly"
+
+    Public Event RuntimeOnly_AktRendering_Event()
+    Private _RuntimeOnly_AktRendering As Rendering
+    Public Property RuntimeOnly_AktRendering As Rendering
+        Get
+            Return _RuntimeOnly_AktRendering
+        End Get
+        Set(value As Rendering)
+            _RuntimeOnly_AktRendering = value
+            RaiseEvent RuntimeOnly_AktRendering_Event()
+        End Set
+    End Property
+
+    Public Event RuntimeOnly_ToolboxAktiv_Event()
+    Private _RuntimeOnly_ToolboxAktiv As Boolean
+    Public Property RuntimeOnly_ToolboxAktiv As Boolean
+        Get
+            Return _RuntimeOnly_ToolboxAktiv
+        End Get
+        Set(value As Boolean)
+            _RuntimeOnly_ToolboxAktiv = value
+            RaiseEvent RuntimeOnly_ToolboxAktiv_Event()
+        End Set
+    End Property
+
+#End Region
+
+
+#Region "EventsOnly"
+
+    Public Event EventsOnly_RefreshUINachIniÄnderung_Event()
+
+    Public Sub EventsOnly_RefreshUINachIniÄnderung()
+        RaiseEvent Rendering_AktMaxSteineXYZ_Event()
+        RaiseEvent EventsOnly_RefreshUINachIniÄnderung_Event()
+    End Sub
+
+#End Region
+
+
 #Region "Ini Editieren"
 
     ''' <summary>
     ''' Zum Editieren der INI während des laufenden Betriebes.
     ''' 
     ''' </summary>
-    ''' <returns></returns>
-    Public Function IniEditieren() As String
+    Public Sub IniEditieren()
 
         Spielfeld.PaintSpielfeld_BeginPause()
 
@@ -1553,44 +1690,14 @@ Public Module INI
 
             If f.IniFileChanged Then
                 Spielfeld.PaintSpielfeld_EndPause(startIniUpdate:=True, raiseIniEvents:=IniEvents.OnUpdate)
+            Else
+                Spielfeld.PaintSpielfeld_EndPause(startIniUpdate:=False)
             End If
 
         End Using
 
-    End Function
+    End Sub
 
-    ''' <summary>
-    ''' Setzt alle Property-Puffer des INI-Moduls zurück.
-    ''' Es werden alle Public Shared Properties mit "_" im Namen berücksichtigt.
-    ''' Der Setter wird jeweils mit dem aktuellen Wert aufgerufen,
-    ''' sodass die Puffer invalidiert werden.
-    ''' </summary>
-    Public Function RefreshCaches() As IniCacheReset.RefreshSummary
-        Return IniCacheReset.RefreshPropertyCaches(GetType(INI),
-            New IniCacheReset.ResetOptions With {
-                .OnlyWithUnderscore = True,
-                .ContinueOnError = True,
-                .DryRun = False
-            })
-    End Function
-
-#End Region
-
-#Region "ToggleValues"
-
-    Public Event ToggleValue_RefreshUINachIniÄnderung_Event()
-    Public Property ToggleValue_RefreshUINachIniÄnderung As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = "Das ist ein rein interner Wert, dessen Umdrehen eine Reihe von Events auslößt."
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Boolean)
-            If BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString) Then
-                RaiseEvent ToggleValue_RefreshUINachIniÄnderung_Event()
-            End If
-        End Set
-    End Property
 
 #End Region
 
@@ -1882,12 +1989,12 @@ Public Module INI
 
     Public Sub AllIniManagersBackupRaiseIniEvents()
         For Each m As IniManager In AllIniManagers
-            m.BackupRaiseIniEvents()
+            m.BackupValueRaiseIniEvents()
         Next
     End Sub
     Public Sub AllIniManagersRestoreRaiseIniEvents()
         For Each m As IniManager In AllIniManagers
-            m.RestoreRaiseIniEvents()
+            m.RestoreValueRaiseIniEvents()
         Next
     End Sub
 
@@ -1901,7 +2008,7 @@ Public Module INI
 
     End Function
 
-    Public Sub AllIniManagersInitAllDefaults()
+    Public Sub AllIniManagersInitAllDefaultsAndSave()
 
         AllIniManagersSetInitialisierungAktiv(True)
 
@@ -1951,6 +2058,8 @@ Public Module INI
 
     End Sub
 
+
+
 #End Region
 
 
@@ -1975,12 +2084,12 @@ Public Module INI
 
     ''' <summary>
     ''' Aktualisiert die INI-Werte und löst je nach <paramref name="raiseIE"/> die Events aus.
-    ''' Szenario A: <paramref name="readNewIni"/> = False → Org-Ini wird nach Tmp kopiert (interne Aktualisierung).
-    ''' Szenario B: <paramref name="readNewIni"/> = True  → Extern bereitgestellte Tmp-Ini wird übernommen.
+    ''' Szenario A: <paramref name="readNewIniFromIniTmp"/> = False → Org-Ini wird nach Tmp kopiert (interne Aktualisierung).
+    ''' Szenario B: <paramref name="readNewIniFromIniTmp"/> = True  → Extern bereitgestellte Tmp-Ini wird übernommen.(vom IniEditor)
     ''' </summary>
     ''' <param name="raiseIE">Steuert, wann BasisIni.WriteValue True liefert (und damit Events feuert).</param>
-    ''' <param name="readNewIni">Wenn True: vorhandene Tmp-Ini als Quelle verwenden, sonst Org→Tmp kopieren.</param>
-    Public Sub UpDateIni(raiseIE As IniEvents, readNewIni As Boolean)
+    ''' <param name="readNewIniFromIniTmp">Wenn True: vorhandene Tmp-Ini als Quelle verwenden, sonst Org→Tmp kopieren.</param>
+    Public Sub UpDateIni(raiseIE As IniEvents, readNewIniFromIniTmp As Boolean)
 
         For Each manager As IniManager In AllIniManagers
 
@@ -1988,17 +2097,18 @@ Public Module INI
             Dim tmpPath As String = manager.FileFullTmpPath
 
             If Not IO.File.Exists(orgPath) Then
-                'Im eingebautem INI-Editor wurde alles gelöscht und dann gespeichert,
-                'Der Editor löscht darauhin die INI, sie muß neu aufgebaut werden.
+                'Im eingebautem IniEditor wurde alles gelöscht und dann gespeichert,
+                'Der IniEditor löscht darauhin die INI, sie muß neu aufgebaut werden.
+                '(Der IniEditor schreibt nie in die *.ini, sondern in die *.ini.tmp)
                 AllIniManagersBackupRaiseIniEvents()
                 AllIniManagersSetRaiseIniEvents(IniEvents.None)
-                AllIniManagersInitAllDefaults()
+                AllIniManagersInitAllDefaultsAndSave()
                 AllIniManagersRestoreRaiseIniEvents()
             End If
 
 
             ' Sicherheitsprüfungen & Vorbereitung
-            If Not readNewIni Then
+            If Not readNewIniFromIniTmp Then
                 ' Interner Weg: Org → Tmp kopieren
                 manager.CopyOrgFileToTmpFile()
             End If
@@ -2008,12 +2118,15 @@ Public Module INI
             If Not IO.File.Exists(orgPath) Then
                 Throw New FileNotFoundException("Org-INI nicht gefunden.", orgPath)
             End If
+
             If Not File.Exists(tmpPath) Then
-                Throw New FileNotFoundException("Tmp-INI nicht gefunden.", tmpPath)
+                'wenn nichts da ist (beim Programmstart)
+                'mit einer Kopie des Originals weiterarbeiten.
+                manager.CopyOrgFileToTmpFile()
             End If
 
             ' RaiseIniEvents sichern und fürs Laden ausschalten
-            manager.BackupRaiseIniEvents()
+            manager.BackupValueRaiseIniEvents()
             manager.RaiseIniEvents = IniEvents.None
 
             ' Container für Werte aus der neuen INI
@@ -2023,10 +2136,12 @@ Public Module INI
                 ' 1) Neue INI laden (Tmp)
                 manager.LoadTmpFile()
 
+                ResetIniCaches() 'sonst werden beim Auslesen die alten Werte ausgelesen
+
                 ' 2) Alle relevanten Properties (mit Unterstrich) auslesen und merken
                 For Each p As PropertyInfo In GetIniPropertiesWithUnderscore()
                     Dim cur As Object = p.GetValue(Nothing, Nothing)
-                    newValues.Add((p, cur))
+                    newValues.Add((p, CloneIfNeeded(cur)))
                 Next
 
                 ' 3) Zur Org-INI zurück
@@ -2044,16 +2159,129 @@ Public Module INI
 
             Catch
                 ' Bei Fehlern Ursprungszustand wiederherstellen und Fehler weiterreichen
-                manager.RestoreRaiseIniEvents()
+                manager.RestoreValueRaiseIniEvents()
                 Throw
             End Try
 
             ' 6) RaiseIniEvents auf ursprünglichen Zustand zurück
-            manager.RestoreRaiseIniEvents()
+            manager.RestoreValueRaiseIniEvents()
+
+            'und die geänderte INI zurückschreiben
+            manager.Save(alwaysSave:=True) 'auch wenn nichts geändert wurde rückschreiben.
 
         Next
 
+        ResetIniCachesAndRaiseAllIniEvents()
+
     End Sub
+
+    ''' <summary>
+    ''' Setzt alle Cache-Felder (Private, Shared) dieses Moduls zurück,
+    ''' deren Namen mit "_" beginnen und mindestens einen weiteren "_" enthalten.
+    ''' Nullable-Typen -> Nothing; Strukturen -> .Empty falls vorhanden, sonst Default(0).
+    ''' </summary>
+    Public Sub ResetIniCaches(Optional useEmptyForStructs As Boolean = True)
+
+        Dim t As Type = GetType(INI) ' <— falls das Modul anders heißt, hier anpassen
+        Dim flags As BindingFlags = BindingFlags.NonPublic Or BindingFlags.Static Or BindingFlags.DeclaredOnly
+
+        Dim cleared As Integer = 0
+
+        For Each f As FieldInfo In t.GetFields(flags)
+            Dim n As String = f.Name
+            If n.StartsWith("_", StringComparison.Ordinal) AndAlso n.IndexOf("_"c, 1) >= 0 Then
+                Dim ft As Type = f.FieldType
+                Dim newVal As Object = Nothing
+
+                If ft.IsGenericType AndAlso ft.GetGenericTypeDefinition() Is GetType(Nullable(Of )) Then
+                    ' Nullable(Of T) -> Nothing (HasValue=False)
+                    newVal = Nothing
+
+                ElseIf ft.IsValueType Then
+                    If useEmptyForStructs Then
+                        ' Versuche .Empty (Size, SizeF, Point, PointF, Rectangle, RectangleF)
+                        Dim emptyField As FieldInfo = ft.GetField("Empty", BindingFlags.Public Or BindingFlags.Static)
+                        If emptyField IsNot Nothing Then
+                            newVal = emptyField.GetValue(Nothing)
+                        Else
+                            newVal = Activator.CreateInstance(ft) ' Default(0)
+                        End If
+                    Else
+                        newVal = Activator.CreateInstance(ft) ' Default(0)
+                    End If
+
+                Else
+                    ' Referenztypen (falls vorhanden) -> Nothing
+                    newVal = Nothing
+                End If
+
+                f.SetValue(Nothing, newVal)
+                cleared += 1
+            End If
+        Next
+
+#If DEBUG Then
+        Debug.WriteLine($"ResetIniCaches(): cleared {cleared} fields.")
+#End If
+    End Sub
+
+    ''' <summary>
+    ''' Löst alle (parameterlosen) Events im Modul INI aus, indem alle registrierten Handler aufgerufen werden.
+    ''' </summary>
+    ''' <returns>Anzahl aufgerufener Handler.</returns>
+    Public Function RaiseAllIniEvents() As Integer
+        Dim t As Type = GetType(INI) ' ggf. anpassen
+        Dim flags As BindingFlags =
+            BindingFlags.Public Or BindingFlags.NonPublic Or BindingFlags.Static Or BindingFlags.DeclaredOnly
+
+        Dim handlersCalled As Integer = 0
+        Dim eventCount As Integer = 0
+
+        For Each ev As EventInfo In t.GetEvents(flags)
+            eventCount += 1
+
+            ' VB.NET-Backing-Field heißt i.d.R. "<EventName>Event"
+            Dim backing As FieldInfo =
+                t.GetField(ev.Name & "Event", BindingFlags.NonPublic Or BindingFlags.Static Or BindingFlags.IgnoreCase)
+
+            If backing Is Nothing Then
+#If DEBUG Then
+                Debug.WriteLine($"RaiseAllIniEvents: Kein Backing-Field für Event '{ev.Name}'.")
+#End If
+                Continue For
+            End If
+
+            Dim multicast As [Delegate] = TryCast(backing.GetValue(Nothing), [Delegate])
+            If multicast Is Nothing Then Continue For
+
+            For Each d As [Delegate] In multicast.GetInvocationList()
+                Try
+                    ' Parameterlos auslösen:
+                    d.DynamicInvoke()
+                    handlersCalled += 1
+                Catch ex As TargetInvocationException
+#If DEBUG Then
+                    Debug.WriteLine($"Event '{ev.Name}' Handler '{d.Method.Name}' warf: {ex.InnerException?.Message}")
+#End If
+                End Try
+            Next
+        Next
+
+#If DEBUG Then
+        Debug.WriteLine($"RaiseAllIniEvents: {eventCount} Events; {handlersCalled} Handler aufgerufen.")
+#End If
+
+        Return handlersCalled
+    End Function
+
+    ''' <summary>
+    ''' Komfort: Zuerst alle INI-Caches leeren, dann alle Events feuern.
+    ''' </summary>
+    Public Sub ResetIniCachesAndRaiseAllIniEvents()
+        ResetIniCaches() ' Deine bereits vorhandene Methode
+        RaiseAllIniEvents()
+    End Sub
+
 
     ''' <summary>
     ''' Liefert alle öffentlichen, statischen, parameterlosen INI-Properties aus diesem Modul,
@@ -2072,6 +2300,53 @@ Public Module INI
             Where(Function(p) p.Name.Contains("_"))
 
     End Function
+    '
+    ''' <summary>
+    ''' Liefert für gegebene Werte eine eigenständige Kopie zurück,
+    ''' wo nötig. ValueTypes (Strukturen) werden automatisch kopiert.
+    ''' Unterstützte Typen:
+    ''' - Integer, Long, Single, Double, Decimal, Date, Enumerationen (ValueTypes)
+    ''' - Color, Point, PointF, Size, SizeF, Rectangle, RectangleF (ValueTypes)
+    ''' - Font (Referenztyp) → wird geklont
+    ''' Andere unveränderliche Typen (z.B. String) werden unverändert zurückgegeben.
+    ''' </summary>
+    Public Function CloneIfNeeded(value As Object) As Object
+        If value Is Nothing Then Return Nothing
+
+        ' 1) Spezialfall: Font (Referenztyp, veränderlich) → klonen
+        If TypeOf value Is Font Then
+            Return CType(value, Font).Clone()
+        End If
+
+        Dim t As Type = value.GetType()
+
+        ' 2) Alle ValueTypes (Structs) sind per Zuweisung Kopien:
+        '    Dazu gehören: Integer, Long, Single, Double, Decimal, Boolean,
+        '    Date (DateTime), Enums, Color, Point, PointF, Size, SizeF,
+        '    Rectangle, RectangleF … usw.
+        If t.IsValueType Then
+            Return value
+        End If
+
+        ' 3) String ist unveränderlich → kann geteilt werden
+        If TypeOf value Is String Then
+            Return value
+        End If
+
+        ' 4) Falls ein anderer Referenztyp ICloneable unterstützt, vorsichtig nutzen
+        Dim clonable As ICloneable = TryCast(value, ICloneable)
+        If clonable IsNot Nothing Then
+            Try
+                Return clonable.Clone()
+            Catch
+                ' Falls das Clone fehlschlägt, einfach Fallback
+            End Try
+        End If
+
+        ' 5) Fallback: Referenz zurückgeben (für deine Liste nicht relevant)
+        Return value
+    End Function
+
 
 #End Region
 

@@ -41,11 +41,12 @@ Namespace Spielfeld
 
             'Auf eine Änderung von AktRendering reagieren
             Dim changed As Boolean = False
-
+            Dim createFrozenBitmap As Boolean = Not RectSpielfeld.IsEmpty 'es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
             Select Case AktRendering
                 Case Rendering.Spielfeld
                     If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo) Then
                         If Not PlayerSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
+
                             AktSpielfeldInfo = PlayerSpielfeldInfo
                             changed = True
                         End If
@@ -59,7 +60,7 @@ Namespace Spielfeld
                     End If
 
                 Case Rendering.Editor
-                    If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo.SteinInfos) Then
+                    If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo) Then
                         If Not EditorSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
                             AktSpielfeldInfo = EditorSpielfeldInfo
                             changed = True
@@ -87,7 +88,10 @@ Namespace Spielfeld
                 zMax = .zMax
                 xMaxSteine = xMax \ 2 'jeder Stein belegt 2 Felder --> \ 2
                 yMaxSteine = yMax \ 2
+                zMaxSteine = .zMax + 1
             End With
+
+            INI.RaiseAllIniEvents()
 
             If xMaxSteine < MJ_STEINE_SIDEBYSIDE_MIN OrElse yMaxSteine < MJ_STEINE_OVERANOTHER_MIN Then
                 If Debugger.IsAttached And Not IfRunningInIDE_ShowErrorMsgInsteadOfException Then
@@ -128,6 +132,8 @@ Namespace Spielfeld
             Dim steinSize As Size
             Dim shrink As Integer = -1
 
+            Dim test As Integer = INI.Rendering_OrgGrafikReferenceSizeWidth
+
             Do
                 shrink += 1
 
@@ -165,8 +171,8 @@ Namespace Spielfeld
 
             '
             'neu berechnen
-            summeWidth = steinWidth * xMaxSteine + offset3DLeftSumme
-            summeHeight = steinHeight * yMaxSteine + offset3DTopSumme
+            summeWidth = steinWidth * xMaxSteine + offset3DLeftSumme '+ 2
+            summeHeight = steinHeight * yMaxSteine + offset3DTopSumme '+ 2
 
             Dim deltaWidth As Integer = insideWidth - summeWidth
             Dim deltaHeigh As Integer = insideHeight - summeHeight
@@ -188,8 +194,13 @@ Namespace Spielfeld
             offset3DLeftJeEbene *= INI.Rendering_Offset3DFaktorSignX
             offset3DTopJeEbene *= INI.Rendering_Offset3DFaktorSignY
 
-            offset3DLeftSumme *= INI.Rendering_Offset3DFaktorSignX
-            offset3DTopSumme *= INI.Rendering_Offset3DFaktorSignY
+            If offset3DLeftJeEbene < 0 Then
+                offset3DLeftSumme = 0
+            End If
+            If offset3DTopJeEbene < 0 Then
+                offset3DTopSumme = 0
+            End If
+
 
         End Sub
 

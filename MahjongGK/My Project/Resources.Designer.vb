@@ -73,6 +73,16 @@ Namespace My.Resources
         '''<summary>
         '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property EditorAktiv() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("EditorAktiv", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property ErrorGrafik() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("ErrorGrafik", resourceCulture)
@@ -87,6 +97,26 @@ Namespace My.Resources
             Get
                 Dim obj As Object = ResourceManager.GetObject("MahjongGK", resourceCulture)
                 Return CType(obj,System.Drawing.Icon)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property PfeilDn() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PfeilDn", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property PfeilUp() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PfeilUp", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
         
@@ -153,6 +183,16 @@ Namespace My.Resources
         '''<summary>
         '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property SpielerAktiv() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("SpielerAktiv", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property Statistik() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("Statistik", resourceCulture)
@@ -203,9 +243,29 @@ Namespace My.Resources
         '''<summary>
         '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         '''</summary>
-        Friend ReadOnly Property Werkzeugkiste() As System.Drawing.Bitmap
+        Friend ReadOnly Property WerkbankAktiv() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Werkzeugkiste", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("WerkbankAktiv", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Werkzeug() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Werkzeug", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property WerkzeugAktiv() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WerkzeugAktiv", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

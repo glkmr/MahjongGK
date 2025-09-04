@@ -115,18 +115,24 @@ End Enum
 Public Enum AppGrafikName
     ErrorGrafik ' Notnagel; MUSS in Ressourcen vorhanden sein
     Editor
+    EditorAktiv
+    PfeilDn
+    PfeilUp
     Redo
     Restart
     Screenshot
     ShowSelectableChecked
     ShowSelectableUnChecked
     Spieler
+    SpielerAktiv
     Statistik
     Tip
     Tipps
     Undo
     Werkbank
-    Werkzeugkiste
+    WerkbankAktiv
+    Werkzeug
+    WerkzeugAktiv
     WindsChecked
     WindsUnChecked
 End Enum

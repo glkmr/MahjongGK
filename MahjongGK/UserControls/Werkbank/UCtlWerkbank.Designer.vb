@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
-Partial Class UCtlEditor
+Partial Class UCtlWerkbank
     Inherits System.Windows.Forms.UserControl
 
     'UserControl überschreibt den Löschvorgang, um die Komponentenliste zu bereinigen.
@@ -24,12 +24,12 @@ Partial Class UCtlEditor
     Private Sub InitializeComponent()
         Me.SuspendLayout()
         '
-        'UCtlEditor
+        'UCtlWerkbank
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.Name = "UCtlEditor"
-        Me.Size = New System.Drawing.Size(843, 477)
+        Me.Name = "UCtlWerkbank"
+        Me.Size = New System.Drawing.Size(706, 433)
         Me.ResumeLayout(False)
 
     End Sub

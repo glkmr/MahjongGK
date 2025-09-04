@@ -4,6 +4,7 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Text
@@ -72,13 +73,14 @@ Public Class FrmIniEditor
     Private ReadOnly _miFont As New ToolStripMenuItem("Font")
 
     Private ReadOnly _cboKeys As New ComboBox
+    Private ReadOnly _cboSektion As New ComboBox
 
     Private ReadOnly _fontDlg As New FontDialog() With {.ShowEffects = True}
 
     Private ReadOnly _cms As New ContextMenuStrip()
 
     Private ReadOnly _lblMark As New Label() With {
-        .Text = "-->",
+        .Text = "➤",
         .AutoSize = True,
         .Font = New Font(SystemFonts.DefaultFont, FontStyle.Bold)
     }
@@ -139,7 +141,7 @@ Public Class FrmIniEditor
         AddHandler _rtb.TextChanged, AddressOf Rtb_TextChanged
         AddHandler Me.FormClosing, AddressOf Frm_FormClosing
         AddHandler Me.Shown, AddressOf Frm_Shown
-        AddHandler _rtb.HandleCreated, Sub(_s, _e) SetRtbMargins(25, 5)
+        AddHandler _rtb.HandleCreated, Sub(_s, _e) SetRtbMargins(18, 5)
 
         ' Pfad zur INI-Datei ermitteln (mit Fallback)
         Try
@@ -219,6 +221,7 @@ Public Class FrmIniEditor
     End Sub
 
         AddHandler _cboKeys.SelectedIndexChanged, Sub() JumpToSelectedKey()
+        AddHandler _cboSektion.SelectedIndexChanged, Sub() JumpToSelectedSection()
 
         ' Colors-Menü im Hauptmenü einhängen
         _menu.Items.Add(New ToolStripSeparator())
@@ -229,13 +232,19 @@ Public Class FrmIniEditor
         _cboKeys.DropDownStyle = ComboBoxStyle.DropDownList
         _cboKeys.Width = 450
 
+        _cboSektion.DropDownStyle = ComboBoxStyle.DropDownList
+        _cboSektion.Width = 300
+
         ' In ToolStripControlHost packen
-        Dim host As New ToolStripControlHost(_cboKeys)
-        host.Alignment = ToolStripItemAlignment.Right  ' Ganz rechts platzieren
+        Dim host1 As New ToolStripControlHost(_cboKeys)
+        host1.Alignment = ToolStripItemAlignment.Right  ' Ganz rechts platzieren
+        Dim host2 As New ToolStripControlHost(_cboSektion)
+        host2.Alignment = ToolStripItemAlignment.Right  ' Ganz rechts platzieren
 
         _menu.Items.Add(New ToolStripSeparator())
         ' Ins MenuStrip einfügen
-        _menu.Items.Add(host)
+        _menu.Items.Add(host1)
+        _menu.Items.Add(host2)
 
     End Sub
 
@@ -318,11 +327,13 @@ Public Class FrmIniEditor
                             "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
 
-        FillCboKeys()
+        FillCboKeys(String.Empty)
+        FillCboSections()
 
     End Sub
 
     Private Sub Save_Click(sender As Object, e As EventArgs)
+        ShowTransientMenuText(_miSave, "gespeichert")
         SaveIniFile()
     End Sub
 
@@ -330,7 +341,9 @@ Public Class FrmIniEditor
 
         If String.IsNullOrWhiteSpace(_rtb.Text) Then
             Try
-                IO.File.Delete(_iniFullLoadPath)
+                IO.File.Delete(_iniFullSavePath)
+                _isDirty = False
+                Me.DialogResult = DialogResult.OK
             Catch ex As Exception
 
             End Try
@@ -339,13 +352,13 @@ Public Class FrmIniEditor
 
         If _isDirty Then
             Try
-                Directory.CreateDirectory(Path.GetDirectoryName(_iniFullLoadPath))
-                Using sw As New StreamWriter(_iniFullLoadPath, append:=False, encoding:=New UTF8Encoding(encoderShouldEmitUTF8Identifier:=True))
+                Directory.CreateDirectory(Path.GetDirectoryName(_iniFullSavePath))
+                Using sw As New StreamWriter(_iniFullSavePath, append:=False, encoding:=New UTF8Encoding(encoderShouldEmitUTF8Identifier:=True))
                     sw.Write(_rtb.Text)
                 End Using
                 _isDirty = False
                 _IniFileChanged = True
-                Me.DialogResult = DialogResult.OK ' Editor bleibt offen; DialogResult signalisiert „gespeichert“
+                Me.DialogResult = DialogResult.OK
             Catch ex As Exception
                 MessageBox.Show(Me, "Fehler beim Speichern der INI:" & Environment.NewLine & ex.Message,
                                 "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -384,6 +397,9 @@ Public Class FrmIniEditor
         _cboKeys.BackColor = cs.BackColor
         _cboKeys.ForeColor = cs.KeyColor
         _cboKeys.Font = _rtb.Font
+        _cboSektion.BackColor = cs.BackColor
+        _cboSektion.ForeColor = cs.KeyColor
+        _cboSektion.Font = _rtb.Font
         _rtb.BackColor = cs.BackColor
         _rtb.ForeColor = cs.ValueColor
         Me.BackColor = cs.BackColor
@@ -458,7 +474,7 @@ Public Class FrmIniEditor
     End Sub
 
     Private Function MakeColorSwatch(col As Color) As Image
-        Dim bmp As New Bitmap(16, 16)
+        Dim bmp As New Bitmap(16, 16, PixelFormat.Format32bppPArgb)
         Using g As Graphics = Graphics.FromImage(bmp)
             g.Clear(col)
             g.DrawRectangle(Pens.Black, 0, 0, bmp.Width - 1, bmp.Height - 1)
@@ -474,18 +490,44 @@ Public Class FrmIniEditor
         _miColValue.Image = MakeColorSwatch(_scheme.ValueColor)
     End Sub
 
-    Private Sub FillCboKeys()
+    Private Sub FillCboKeys(selection As String)
 
         _cboKeys.Items.Clear()
+        Dim skipBefore As Boolean = Not String.IsNullOrEmpty(selection)
+        If selection = "[Alle Sektionen]" Then
+            skipBefore = False
+        End If
+
+        Dim skipAfter As Boolean = False
 
         ' Text aus RichTextBox zeilenweise durchgehen
         For Each line As String In _rtb.Lines
             Dim trimmed As String = line.Trim()
 
             ' Leere Zeilen, Kommentare und Folder überspringen
-            If trimmed.Length = 0 Then Continue For
-            If trimmed.StartsWith(";", StringComparison.Ordinal) Then Continue For
-            If trimmed.StartsWith("[", StringComparison.Ordinal) Then Continue For
+            If trimmed.Length = 0 Then
+                Continue For
+            End If
+
+            If trimmed.StartsWith(";") Then
+                Continue For
+            End If
+
+            If skipBefore Then
+                If trimmed.StartsWith(selection) Then
+                    skipAfter = True
+                    skipBefore = False
+                End If
+                Continue For
+            ElseIf skipAfter Then
+                If trimmed.StartsWith("[") Then
+                    Exit For
+                End If
+            End If
+
+            If trimmed.StartsWith("[") Then
+                Continue For
+            End If
 
             ' Key = Value trennen
             Dim parts() As String = trimmed.Split({"="c}, 2)
@@ -498,11 +540,28 @@ Public Class FrmIniEditor
         Next
 
         _cboKeys.Sorted = True
-        _cboKeys.Text = "Alle Keys"
-        ' Falls mindestens ein Key gefunden wurde → ersten auswählen
-        'If _cboKeys.Items.Count > 0 Then
-        '    _cboKeys.SelectedIndex = 0
-        'End If
+
+    End Sub
+
+    Private Sub FillCboSections()
+
+
+        _cboSektion.Items.Clear()
+        _cboSektion.Items.Add("[Alle Sektionen]")
+        ' Text aus RichTextBox zeilenweise durchgehen
+        For Each line As String In _rtb.Lines
+            Dim trimmed As String = line.Trim()
+
+            ' Leere Zeilen, Kommentare und Keys überspringen
+            If trimmed.Length = 0 Then
+                Continue For
+            End If
+            If trimmed.Length > 0 AndAlso trimmed.StartsWith("[") Then
+                _cboSektion.Items.Add(trimmed)
+            End If
+        Next
+
+        _cboSektion.Sorted = True
     End Sub
 
     ' --- Win32 für exaktes Scrollen/Ermitteln der ersten sichtbaren Zeile ---
@@ -515,22 +574,49 @@ Public Class FrmIniEditor
     End Function
 
     Private Sub JumpToSelectedKey()
-        Dim key As String = _cboKeys.Text.Trim()
-        If key.Length = 0 OrElse _rtb.TextLength = 0 Then Exit Sub
+        JumpToSelectedItem(True)
+    End Sub
+
+    Private Sub JumpToSelectedSection()
+        JumpToSelectedItem(False)
+        FillCboKeys(_cboSektion.Text.Trim())
+    End Sub
+
+    Private Sub JumpToSelectedItem(isKey As Boolean)
+
+        Dim item As String
+        If isKey Then
+            item = _cboKeys.Text.Trim()
+        Else
+            item = _cboSektion.Text.Trim()
+        End If
+
+        If item.Length = 0 OrElse _rtb.TextLength = 0 Then Exit Sub
 
         Dim lines() As String = _rtb.Lines
         For i As Integer = 0 To lines.Length - 1
             Dim raw As String = lines(i)
             Dim ls As String = raw.TrimStart()
 
-            If ls.StartsWith(";", StringComparison.Ordinal) Then Continue For
-            If ls.StartsWith("[", StringComparison.Ordinal) Then Continue For
+            If isKey Then
+                If ls.StartsWith(";") Then Continue For
+                If ls.StartsWith("[") Then Continue For
+            Else
+                If Not ls.StartsWith("[") Then Continue For
+            End If
 
-            Dim eqPos As Integer = ls.IndexOf("="c)
-            If eqPos <= 0 Then Continue For
+            Dim eqPos As Integer
+            If isKey Then
+                eqPos = ls.IndexOf("="c)
+                If eqPos <= 0 Then
+                    Continue For
+                End If
+            Else
+                eqPos = ls.Length
+            End If
 
             Dim leftKey As String = ls.Substring(0, eqPos).Trim()
-            If leftKey.Equals(key, StringComparison.OrdinalIgnoreCase) Then
+            If leftKey.Equals(item, StringComparison.OrdinalIgnoreCase) Then
                 Dim lineStart As Integer = _rtb.GetFirstCharIndexFromLine(i)
                 If lineStart < 0 Then Exit Sub
 
@@ -543,12 +629,13 @@ Public Class FrmIniEditor
 
                 ' … dann exakt vertikal zentrieren (mit leichtem Offset nach unten)
                 Dim caretPt As Point = CenterCaretVertically(_rtb, offsetLinesBelowCenter:=1)
-                ShowLabelMark(caretPt, korrekturOffsetY:=2)
+                ShowLabelMark(caretPt, korrekturOffsetY:=42)
                 _rtb.Focus()
                 Exit Sub
             End If
         Next
     End Sub
+
 
     ' Zentriert die aktuelle Caret-Position vertikal im sichtbaren Bereich.
     ' offsetLinesBelowCenter: >0 = Zeile etwas UNTER die Mitte schieben (mehr Platz für Kommentar oben)
@@ -722,5 +809,51 @@ Public Class FrmIniEditor
         Me.ResumeLayout(False)
 
     End Sub
+    '
+    ''' <summary>
+    ''' Bequemer Fire-and-Forget-Wrapper, falls du nicht "Await" benutzen willst.
+    ''' </summary>
+    <DebuggerStepThrough>
+    Public Sub ShowTransientMenuText(item As ToolStripMenuItem,
+                                     tempText As String,
+                                     Optional durationMs As Integer = 1000)
+        Dim unused As Task = ShowTransientMenuTextAsync(item, tempText, durationMs)
+    End Sub
+    '
+    ''' <summary>
+    ''' Zeigt für kurze Zeit einen Ersatz-Text auf einem ToolStripMenuItem
+    ''' (z.B. "gespeichert") und stellt danach den Originaltext wieder her.
+    ''' Blockiert die UI nicht.
+    ''' </summary>
+    ''' <param name="item">Das betroffene Menü-Item.</param>
+    ''' <param name="tempText">Der temporär anzuzeigende Text.</param>
+    ''' <param name="durationMs">Anzeigedauer in Millisekunden (Default: 1000ms).</param>
+    <DebuggerStepThrough>
+    Public Async Function ShowTransientMenuTextAsync(item As ToolStripMenuItem,
+                                                     tempText As String,
+                                                     Optional durationMs As Integer = 1000) As Task
+        If item Is Nothing Then Return
+
+        Dim originalText As String = item.Text
+        Try
+            item.Text = tempText
+            Dim owner As ToolStrip = item.Owner
+            If owner IsNot Nothing Then
+                owner.Invalidate()
+                owner.Update()
+            End If
+
+            Await Task.Delay(durationMs).ConfigureAwait(True)
+        Finally
+            item.Text = originalText
+            Dim owner As ToolStrip = item.Owner
+            If owner IsNot Nothing Then
+                owner.Invalidate()
+                owner.Update()
+            End If
+        End Try
+    End Function
+
+
 End Class
 

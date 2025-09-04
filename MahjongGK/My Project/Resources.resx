@@ -121,11 +121,20 @@
   <data name="Editor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Editor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="EditorAktiv" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EditorAktiv.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="ErrorGrafik" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Error.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>..\Resources\ErrorGrafik.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="MahjongGK" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\MahjongGK.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PfeilDn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PfeilDn.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PfeilUp" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PfeilUp.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Redo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Redo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -145,6 +154,9 @@
   <data name="Spieler" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Spieler.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="SpielerAktiv" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SpielerAktiv.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Statistik" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Statistik.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -160,8 +172,14 @@
   <data name="Werkbank" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Werkbank.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Werkzeugkiste" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Werkzeugkiste.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="WerkbankAktiv" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\WerkbankAktiv.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Werkzeug" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Werkzeug.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WerkzeugAktiv" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\WerkzeugAktiv.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="WindsChecked" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\WindsChecked.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
